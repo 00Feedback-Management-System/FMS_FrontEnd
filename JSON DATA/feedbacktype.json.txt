@@ -1,0 +1,102 @@
+[
+  {
+    "feedback_type_id": 1,
+    "feedback_type_title": "Module Feedback",
+    "feedback_type_description": "Feedback on specific course modules.",
+    "is_module": true,
+    "group": "Student",
+    "is_staff": false,
+    "is_session": false,
+    "behaviour": "Formal"
+  },
+  {
+    "feedback_type_id": 2,
+    "feedback_type_title": "Staff Performance",
+    "feedback_type_description": "Evaluation of staff performance and professionalism.",
+    "is_module": false,
+    "group": "HR",
+    "is_staff": true,
+    "is_session": false,
+    "behaviour": "Professional"
+  },
+  {
+    "feedback_type_id": 3,
+    "feedback_type_title": "Session Quality",
+    "feedback_type_description": "Feedback regarding the quality and clarity of training sessions.",
+    "is_module": false,
+    "group": "Training",
+    "is_staff": false,
+    "is_session": true,
+    "behaviour": "Constructive"
+  },
+  {
+    "feedback_type_id": 4,
+    "feedback_type_title": "Group Activity Feedback",
+    "feedback_type_description": "Opinions and suggestions on group-based learning activities.",
+    "is_module": true,
+    "group": "Project Teams",
+    "is_staff": false,
+    "is_session": true,
+    "behaviour": "Collaborative"
+  },
+  {
+    "feedback_type_id": 5,
+    "feedback_type_title": "Behavioural Observation",
+    "feedback_type_description": "Observation and feedback on behavioural conduct during activities.",
+    "is_module": false,
+    "group": "Mentors",
+    "is_staff": true,
+    "is_session": true,
+    "behaviour": "Observational"
+  },
+  {
+    "feedback_type_id": 6,
+    "feedback_type_title": "Technical Workshop Feedback",
+    "feedback_type_description": "Detailed review of technical workshops, including hands-on sessions.",
+    "is_module": true,
+    "group": "Developers",
+    "is_staff": false,
+    "is_session": true,
+    "behaviour": "Technical"
+  },
+  {
+    "feedback_type_id": 7,
+    "feedback_type_title": "Event Feedback",
+    "feedback_type_description": "Feedback for events such as hackathons, fests, and seminars.",
+    "is_module": false,
+    "group": "Organizing Committee",
+    "is_staff": true,
+    "is_session": false,
+    "behaviour": "Engaging"
+  },
+  {
+    "feedback_type_id": 8,
+    "feedback_type_title": "Peer Review",
+    "feedback_type_description": "Peer-to-peer review of academic or professional work.",
+    "is_module": true,
+    "group": "Peers",
+    "is_staff": false,
+    "is_session": false,
+    "behaviour": "Critical"
+  },
+  {
+    "feedback_type_id": 9,
+    "feedback_type_title": "Administrative Feedback",
+    "feedback_type_description": "Feedback related to administrative processes and communication.",
+    "is_module": false,
+    "group": "Administration",
+    "is_staff": true,
+    "is_session": false,
+    "behaviour": "Formal"
+  },
+  {
+    "feedback_type_id": 10,
+    "feedback_type_title": "Leadership Assessment",
+    "feedback_type_description": "Assessment of leadership qualities and decision-making.",
+    "is_module": false,
+    "group": "Management",
+    "is_staff": true,
+    "is_session": true,
+    "behaviour": "Leadership"
+  }
+]

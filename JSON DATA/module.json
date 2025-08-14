@@ -1,0 +1,12 @@
+[
+  { "module_id": 1, "module_name": "Introduction to Programming", "duration": 30 },
+  { "module_id": 2, "module_name": "Database Fundamentals", "duration": 45 },
+  { "module_id": 3, "module_name": "Web Development Basics", "duration": 40 },
+  { "module_id": 4, "module_name": "Data Structures", "duration": 50 },
+  { "module_id": 5, "module_name": "Object Oriented Programming", "duration": 60 },
+  { "module_id": 6, "module_name": "Software Engineering Principles", "duration": 35 },
+  { "module_id": 7, "module_name": "Cloud Computing Basics", "duration": 25 },
+  { "module_id": 8, "module_name": "Cybersecurity Fundamentals", "duration": 40 },
+  { "module_id": 9, "module_name": "Machine Learning Intro", "duration": 55 },
+  { "module_id": 10, "module_name": "Mobile App Development", "duration": 50 }
+]
