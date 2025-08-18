@@ -26,11 +26,8 @@ function StudentFeedbackForm() {
     };
 
     return (
-        <div
-            className="d-flex align-items-center justify-content-center"
-            style={{ minHeight: "100vh", background: "#f5f5f5" }}
-        >
-            <div className="container py-4">
+        <div className="d-flex align-items-center justify-content-center" >
+            <div className="container py-4" style={{ maxWidth: 700 }}>
                 <ToastContainer position="top-right" />
                 <div className="text-center mb-3">
                     <button className="btn btn-primary" disabled style={{ minWidth: 300 }}>

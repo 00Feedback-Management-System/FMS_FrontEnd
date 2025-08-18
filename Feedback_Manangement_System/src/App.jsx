@@ -1,15 +1,13 @@
-import { useState } from 'react'
-import StudentFeedbackForm from './pages/StudentFeedbackForm'
-
+import StudentFeedbackForm from './pages/StudentFeedbackForm';
+import {  Routes, Route } from "react-router-dom";
 
 function App() {
-
   return (
-    <>
-    
-      <StudentFeedbackForm />
-    </>
-  )
+    <div>
+      <Routes>
+        <Route path="/StudentFeedbackForm" element={<StudentFeedbackForm />} />
+      </Routes>
+    </div>
+  );
 }
-
-export default App
+export default App;
