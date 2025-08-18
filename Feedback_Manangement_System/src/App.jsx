@@ -1,18 +1,20 @@
+import { useState } from 'react'
 import FeedbackTypeList from "./pages/feedback/FeedbackTypeList";
-import {  Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import FeedbackTypeForm from "./pages/feedback/FeedbackTypeForm";
-import ScheduleFeedback from "./pages/feedback/ScheduleFeedback";
+import AddQuestionForm from "./pages/feedback/AddQuestionForm";
 import ScheduleFeedbackList from "./pages/feedback/ScheduleFeedbackList" ;
 function App() {
+  const [questions, setQuestions] = useState([]);
   return (
-    <div style={{ height: "300vh", width: "200vw" }}>
+   <Router>
       <Routes>
         <Route path="/" element={<FeedbackTypeList />} />
-        <Route path="/add-feedback-type-form" element={<FeedbackTypeForm />} />
-        <Route path="/Schedule-Feedback" element={<ScheduleFeedbackList />} />
-        <Route path="/Schedule-Feedback Page" element={<ScheduleFeedback />} />
+        <Route path="/add/feedbackTypeForm" element={<FeedbackTypeForm questions={questions} setQuestions={setQuestions}/>} />
+        <Route path="/ScheduleFeedbackList" element={<ScheduleFeedbackList />} />
+        <Route path="/add/feedbackTypeForm/add-question" element={<AddQuestionForm questions={questions} setQuestions={setQuestions}/>} />
       </Routes>
-    </div>
-  );
+   </Router>
+    );
 }
 export default App;
