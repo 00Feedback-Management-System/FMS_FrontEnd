@@ -49,7 +49,7 @@ const columns= [
 ];
 
 const rows = [
-  { id:1,rollno: 101, firstname: 'kajal',lastname: 'Jadhav', emailid: 'kajaljadhav189@gmail.com' },
+  { id:1,rollno: 101, firstname: 'john',lastname: 'Jadhav', emailid: 'kajaljadhav189@gmail.com' },
    { id:2,rollno: 102, firstname: 'kiran',lastname: 'Patil', emailid: 'kiranpatil@gmail.com'},
     {id:3, rollno: 103,firstname: 'Namita',lastname: 'Patil', emailid: 'namitapatil@gmail.com'},
     { id:4,rollno: 104,firstname: 'amit',lastname: 'patil', emailid: 'amitpatil@gmail.com'}
