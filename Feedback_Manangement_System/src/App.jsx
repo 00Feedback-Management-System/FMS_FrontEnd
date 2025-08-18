@@ -1,7 +1,5 @@
 import FeedbackTypeList from "./pages/feedback/FeedbackTypeList";
 import {  Routes, Route } from "react-router-dom";
-import FeedbackTypeFormc from "./pages/feedback/FeedbackTypeFormc";
-import ScheduleFeedback from "./pages/feedback/ScheduleFeedback";
 import ScheduleFeedbackList from "./pages/feedback/ScheduleFeedbackList" ;
 import StudentList from "./pages/feedback/StudentList";
 import RemainingStudent from "./pages/feedback/RemainingStudent";
@@ -10,9 +8,7 @@ function App() {
     <div style={{ height: "300vh", width: "200vw" }}>
       <Routes>
         <Route path="/" element={<FeedbackTypeList />} />
-        <Route path="/add-feedback-type-form" element={<FeedbackTypeFormc />} />
         <Route path="/Schedule-Feedback-List" element={<ScheduleFeedbackList />} />
-        <Route path="/Schedule-Feedback-Page" element={<ScheduleFeedback />} />
         <Route path="/student-list/:scheduleId" element={<StudentList />}/>
         <Route path="/remaining/:scheduleId" element={<RemainingStudent />}/>
 
