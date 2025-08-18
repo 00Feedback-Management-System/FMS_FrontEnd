@@ -4,7 +4,7 @@ import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import "./Component.css";
 
-export default function FeedbackTypeForm() {
+export default function FeedbackTypeFormc() {
   const navigate = useNavigate();
 
   return (
