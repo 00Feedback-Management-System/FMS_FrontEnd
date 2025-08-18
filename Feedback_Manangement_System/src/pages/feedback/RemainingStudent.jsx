@@ -12,7 +12,7 @@ const columns= [
     headerName: 'Roll No',
     width: 150,
     editable: true,
-     renderHeader: () => (
+    renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Roll No</span>
     ),
   },
@@ -21,7 +21,7 @@ const columns= [
     headerName: 'FIRST NAME',
     width: 150,
     editable: true,
-     renderHeader: () => (
+    renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>FIRST NAME</span>
     ),
   },
@@ -31,7 +31,7 @@ const columns= [
     type: 'number',
     width: 110,
     editable: true,
-     renderHeader: () => (
+    renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>LAST NAME</span>
     ),
   },
@@ -40,7 +40,7 @@ const columns= [
     headerName: 'Email ID',
     sortable: false,
     width: 220,
-     renderHeader: () => (
+    renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Email ID</span>
     ),
     
@@ -49,23 +49,23 @@ const columns= [
 ];
 
 const rows = [
-  { id:1,rollno: 101, firstname: 'Tejaswini',lastname: 'Jadhav', emailid: 'tejaswinijadhav189@gmail.com' },
-   { id:2,rollno: 102, firstname: 'Snehal',lastname: 'Badakh', emailid: 'snehalbadakh@gmail.com'},
-    {id:3, rollno: 103,firstname: 'Suhas',lastname: 'Patil', emailid: 'suhaspatil@gmail.com'},
-    { id:4,rollno: 104,firstname: 'Shreeram',lastname: 'Joshi', emailid: 'shreeramjoshi@gmail.com'}
+  { id:1,rollno: 101, firstname: 'kajal',lastname: 'Jadhav', emailid: 'kajaljadhav189@gmail.com' },
+   { id:2,rollno: 102, firstname: 'kiran',lastname: 'Patil', emailid: 'kiranpatil@gmail.com'},
+    {id:3, rollno: 103,firstname: 'Namita',lastname: 'Patil', emailid: 'namitapatil@gmail.com'},
+    { id:4,rollno: 104,firstname: 'amit',lastname: 'patil', emailid: 'amitpatil@gmail.com'}
 ];
 
-export default function StudentList() {
+export default function RemainingStudent() {
   const { scheduleId } = useParams();
 
 const allStudents = {
     1: [
-      { id: 1, rollno: 101, firstname: 'Tejaswini', lastname: 'Jadhav', emailid: 'tejaswinijadhav189@gmail.com' },
-      { id: 2, rollno: 102, firstname: 'Snehal', lastname: 'Badakh', emailid: 'snehalbadakh@gmail.com' },
+      { id: 1, rollno: 101, firstname: 'kajal', lastname: 'Jadhav', emailid: 'kajaljadhav189@gmail.com' },
+      { id: 2, rollno: 102, firstname: 'kiran', lastname: 'Patil', emailid: 'kiranpatil@gmail.com' },
     ],
     2: [
-      { id: 1, rollno: 103, firstname: 'Suhas', lastname: 'Patil', emailid: 'suhaspatil@gmail.com' },
-      { id: 2, rollno: 104, firstname: 'Shreeram', lastname: 'Joshi', emailid: 'shreeramjoshi@gmail.com' },
+      { id: 1, rollno: 103, firstname: 'Namita', lastname: 'Patil', emailid: 'namitapatil@gmail.com' },
+      { id: 2, rollno: 104, firstname: 'amit', lastname: 'Patil', emailid: 'amitpatil@gmail.com' },
     ]
   };
 
@@ -75,7 +75,7 @@ const allStudents = {
 
     <div>
         
-        <h2 className="table-header" style={{ margin:60 } }> Filled Student List</h2>
+        <h2 className="table-header" style={{ margin:60 } }> Remaining Student List</h2>
         {/* <h1 className="table-header" > Feedback Type List </h1> */}
          <Box
         sx={{

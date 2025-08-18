@@ -2,7 +2,7 @@
 import React from "react";
 import Box from '@mui/material/Box';
 import { DataGrid} from '@mui/x-data-grid';
-import "./FeedbackTypeList.css";
+import "./Component.css";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Button } from "@mui/material";
@@ -14,12 +14,18 @@ const columns= [
     headerName: 'Title',
     width: 150,
     editable: true,
+    renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>Title</span>
+    ),
   },
   {
     field: 'module',
     headerName: 'Module',
     width: 150,
     editable: true,
+    renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>Module</span>
+    ),
   },
   {
     field: 'group',
@@ -27,12 +33,18 @@ const columns= [
     type: 'number',
     width: 110,
     editable: true,
+    renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>Group</span>
+    ),
   },
   {
     field: 'staff',
     headerName: 'Staff',
     sortable: false,
     width: 160,
+    renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>Staff</span>
+    ),
     
   },
 
@@ -42,6 +54,9 @@ const columns= [
     type: 'number',
     width: 110,
     editable: true,
+    renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>Session</span>
+    ),
   },
   
   {
@@ -49,11 +64,17 @@ const columns= [
     headerName: 'Behaviour',
     width: 150,
     editable: true,
+    renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>Behaviour</span>
+    ),
   },
   {
       field: "actions",
       headerName: "Action",
       flex: 1,
+      renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>Action</span>
+    ),
       renderCell: () => (
         <>
           <Button color="primary" size="small"><EditIcon/></Button>
