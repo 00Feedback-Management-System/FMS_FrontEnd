@@ -1,13 +1,15 @@
+import { useState } from 'react'
 import FeedbackTypeList from "./pages/feedback/FeedbackTypeList";
-import {  Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import FeedbackTypeForm from "./pages/feedback/FeedbackTypeForm";
-import ScheduleFeedback from "./pages/feedback/ScheduleFeedback";
+import AddQuestionForm from "./pages/feedback/AddQuestionForm";
 import ScheduleFeedbackList from "./pages/feedback/ScheduleFeedbackList" ;
-import StudentFeedbackForm from './pages/StudentFeedbackForm';
+import StudentFeedbackForm from './pages/feedback/StudentFeedbackForm';
 
 function App() {
+  const [questions, setQuestions] = useState([]);
   return (
-    <div style={{ height: "300vh", width: "200vw" }}>
+   <Router>
       <Routes>
         <Route path="/" element={<FeedbackTypeList />} />
         <Route path="/add-feedback-type-form" element={<FeedbackTypeForm />} />
@@ -15,7 +17,7 @@ function App() {
         <Route path="/Schedule-Feedback Page" element={<ScheduleFeedback />} />
         <Route path="/Student-FeedbackForm" element={<StudentFeedbackForm />} />
       </Routes>
-    </div>
-  );
+   </Router>
+    );
 }
 export default App;
