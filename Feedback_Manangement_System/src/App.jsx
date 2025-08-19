@@ -4,9 +4,11 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import AddQuestionForm from "./pages/feedback/AddQuestionForm";
 import ScheduleFeedbackList from "./pages/feedback/ScheduleFeedbackList" ;
+import StudentFeedbackForm from './pages/feedback/StudentFeedbackForm';
 import StudentList from "./pages/feedback/StudentList";
 import RemainingStudent from "./pages/feedback/RemainingStudent";
 import FeedbackTypeForm from './pages/feedback/FeedbackTypeForm';
+
 function App() {
   const [questions, setQuestions] = useState([]);
   return (
@@ -18,7 +20,6 @@ function App() {
         <Route path="/remaining/:scheduleId" element={<RemainingStudent />}/>
         <Route path="/feedback-type-form" element={<FeedbackTypeForm />}/>
         <Route path="/add-question" element={<AddQuestionForm />}/>
-
       </Routes>
    </Router>
     );
