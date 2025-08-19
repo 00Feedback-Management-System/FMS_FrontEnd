@@ -95,7 +95,7 @@ export default function FeedbackTypeList() {
     const navigate = useNavigate();
     const handleAddClick = () => {
     debugger;
-    navigate("/add/feedbackTypeForm"); 
+    navigate("/feedback-type-form"); 
   };
 
   return (
