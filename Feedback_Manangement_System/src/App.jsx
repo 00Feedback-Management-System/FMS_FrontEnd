@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import FeedbackTypeList from "./pages/feedback/FeedbackTypeList";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import FeedbackTypeForm from "./pages/feedback/FeedbackTypeForm";
+
 import AddQuestionForm from "./pages/feedback/AddQuestionForm";
 import ScheduleFeedbackList from "./pages/feedback/ScheduleFeedbackList" ;
 import StudentFeedbackForm from './pages/feedback/StudentFeedbackForm';
+import StudentList from "./pages/feedback/StudentList";
+import RemainingStudent from "./pages/feedback/RemainingStudent";
+import FeedbackTypeForm from './pages/feedback/FeedbackTypeForm';
 
 function App() {
   const [questions, setQuestions] = useState([]);
@@ -12,10 +15,11 @@ function App() {
    <Router>
       <Routes>
         <Route path="/" element={<FeedbackTypeList />} />
-        <Route path="/add-feedback-type-form" element={<FeedbackTypeForm />} />
-        <Route path="/Schedule-Feedback" element={<ScheduleFeedbackList />} />
-        <Route path="/Schedule-Feedback Page" element={<ScheduleFeedback />} />
-        <Route path="/Student-FeedbackForm" element={<StudentFeedbackForm />} />
+        <Route path="/Schedule-Feedback-List" element={<ScheduleFeedbackList />} />
+        <Route path="/student-list/:scheduleId" element={<StudentList />}/>
+        <Route path="/remaining/:scheduleId" element={<RemainingStudent />}/>
+        <Route path="/feedback-type-form" element={<FeedbackTypeForm />}/>
+        <Route path="/add-question" element={<AddQuestionForm />}/>
       </Routes>
    </Router>
     );

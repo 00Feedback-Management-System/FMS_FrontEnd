@@ -1,5 +1,5 @@
 import React from "react";
-import "./ScheduleFeedbackList.css";
+import "./Component.css";
 import Box from '@mui/material/Box';
 import { DataGrid} from '@mui/x-data-grid';
 import EditIcon from "@mui/icons-material/Edit";
@@ -7,19 +7,28 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { Remove } from "@mui/icons-material";
-const columns= [
+
+export default function ScheduleFeedbackList() {
+    const navigate = useNavigate();
+    const columns= [
   { field: 'id', headerName: 'ID', width: 90 },
   {
     field: 'course',
     headerName: 'Course',
     width: 150,
     editable: true,
+     renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>Course</span>
+    ),
   },
   {
     field: 'module',
     headerName: 'Module',
     width: 100,
     editable: true,
+     renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>Module</span>
+    ),
   },
   {
     field: 'type',
@@ -27,12 +36,18 @@ const columns= [
     type: 'number',
     width: 110,
     editable: true,
+     renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>Type</span>
+    ),
   },
   {
     field: 'session',
     headerName: 'Session',
     sortable: false,
     width: 100,
+     renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>Session</span>
+    ),
     
   },
 
@@ -42,6 +57,9 @@ const columns= [
     type: 'number',
     width: 150,
     editable: true,
+     renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>Date</span>
+    ),
   },
   
   {
@@ -49,29 +67,37 @@ const columns= [
     headerName: 'Status',
     width: 100,
     editable: true,
+     renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>Status</span>
+    ),
   },
 
 {
-    field: 'filledby',
-    headerName: 'FilledBy',
-    type: 'number',
-    width: 110,
-    editable: true,
-    renderCell: (params) => (
-      <a
-        href={`/filledby/${params.row.id}`}
-        style={{ color: 'blue', textDecoration: 'underline' }}
-      >
-        {params.value}
-      </a>
+  field: 'filledby',
+  headerName: 'FilledBy',
+  width: 110,
+   renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>FilledBy</span>
     ),
-  },
+  renderCell: (params) => (
+    <Button
+      onClick={() => navigate(`/student-list/${params.row.id}`)}
+      sx={{ color: 'blue', textDecoration: 'underline', padding: 0 }}
+    >
+      {params.value}
+    </Button>
+  ),
+},
+
   {
     field: 'remaining',
     headerName: 'Remaining',
     type: 'number',
     width: 110,
     editable: true,
+     renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>Remaining</span>
+    ),
     renderCell: (params) => (
       <a
         href={`/remaining/${params.row.id}`}
@@ -86,6 +112,9 @@ const columns= [
       field: "actions",
       headerName: "Action",
       flex: 1,
+       renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>Action</span>
+    ),
       renderCell: () => (
         <>
           <Button color="primary" size="small"><EditIcon/></Button>
@@ -98,18 +127,13 @@ const columns= [
 ];
 
 const rows = [
-  { id: 1, course: 'PG-DAC',module: 'Dot Net', type: 'Module end',session: '3',date:'13/08/25 -15/08/25',status:'Active', filledby:'26',remaining:'10'},
-   { id: 2, course: 'PG-DMC',module: 'Java', type: 'Module end',session: '6',date:'13/08/25 -15/08/25',status:'inactive', filledby:'10',remaining:'20'},
+  { id: 1, course: 'PG-DAC',module: 'Dot Net', type: 'Module end',session: '3',date:'13/08/25 -15/08/25',status:'Active', filledby:'2',remaining:'2'},
+   { id: 2, course: 'PG-DMC',module: 'Java', type: 'Module end',session: '6',date:'13/08/25 -15/08/25',status:'inactive', filledby:'2',remaining:'2'},
    
 ];
-
-
-
-export default function ScheduleFeedbackList() {
-    const navigate = useNavigate();
         const handleAddClick = () => {
         debugger;
-        navigate("/Schedule-Feedback Page"); 
+        navigate("/Schedule-Feedback-Page"); 
       };
   return (
 
