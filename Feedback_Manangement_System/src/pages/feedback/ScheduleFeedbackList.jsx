@@ -132,8 +132,8 @@ const rows = [
    
 ];
         const handleAddClick = () => {
-        debugger;
-        navigate("/Schedule-Feedback-Page"); 
+        //debugger;
+        navigate("/schedule-feedback-form"); 
       };
   return (
 
