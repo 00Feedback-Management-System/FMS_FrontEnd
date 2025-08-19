@@ -89,7 +89,7 @@ function FeedbackTypeForm({ questions, setQuestions }){
           </tr>
         </thead>
         <tbody>
-          {questions.length > 0 ? (
+          {questions > 0 ? (
             questions.map((q, index) => (
               <tr key={index}>
                 <td>{index + 1}</td>
