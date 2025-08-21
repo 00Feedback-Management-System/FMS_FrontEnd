@@ -81,7 +81,7 @@ function EditGroup({ groups, setGroups }) {
         <button
           type="button"
           className="btn btn-secondary ms-2"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/app/schedule-feedback-form")}
         >
           Cancel
         </button>
