@@ -2,6 +2,7 @@ import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { Button } from "bootstrap";
 
 function ScheduleFeedbackForm({groups,setGroups}){
     
@@ -10,6 +11,10 @@ function ScheduleFeedbackForm({groups,setGroups}){
     const handleDelete=(id)=>{
         setGroups(groups.filter((group)=>group.id!==id))
     };
+
+    const addGroup = () => {
+        navigate("/app/edit-group/:id")
+    }
 
     
      return (
@@ -103,7 +108,7 @@ function ScheduleFeedbackForm({groups,setGroups}){
               <div className="container mt-4">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                     <h4>Group List</h4>
-                     <Link to="/edit-group/new" className="btn btn-success">Add Group</Link>
+                     <button onClick={addGroup} className="btn btn-success">Add Group</button>
                 </div>
                 
                  <table className="table table-bordered table-striped align-middle">
@@ -119,7 +124,7 @@ function ScheduleFeedbackForm({groups,setGroups}){
                         <tr key={group.id}>
                             <td>{group.groupName}</td>
                             <td>{group.staffName}</td>
-                            <td><button type="button" className="btn btn-warning btn-sm me-2" onClick={()=>navigate(`/edit-group/${group.id}`)}>Edit</button></td>
+                            <td><button type="button" className="btn btn-warning btn-sm me-2" onClick={()=>navigate(`/app/edit-group/${group.id}`)}>Edit</button></td>
                             <td><button  type="button" className="btn btn-danger btn-sm" onClick={()=>handleDelete(group.id)}>Remove</button></td>
                         </tr>
                     ))}
@@ -134,7 +139,7 @@ function ScheduleFeedbackForm({groups,setGroups}){
 
              <div className="text-center">
                 <button type="submit" className="btn btn-primary me-3">SUBMIT</button>
-                <button type="button" className="btn btn-danger">CANCEL</button>
+                <button type="button" onClick={() => navigate("/app/schedule-Feedback-List")} className="btn btn-danger">CANCEL</button>
              </div>
             </form>
 

@@ -4,8 +4,10 @@ import { Button, Box, MenuItem, Select, InputLabel, FormControl } from "@mui/mat
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import "./Feedbackdashbaord.css"; 
+import { useNavigate } from "react-router-dom";
 
 function FeedbackDashboard() {
+  const navigate = useNavigate();
   const columns = [
     { field: "date", headerName: "Date", flex: 1 },
     { field: "course", headerName: "Course", flex: 1 },
@@ -17,7 +19,7 @@ function FeedbackDashboard() {
     {
       field: "actions",
       headerName: "Action",
-      flex: 1,
+      flex: 2,
       renderCell: () => (
         <>
           <Button color="primary" size="small"><EditIcon /></Button>
@@ -31,10 +33,14 @@ function FeedbackDashboard() {
     { id: 1, date: "2025-08-13", course: "Dac", group: "D1", module: "React", faculty: "John Doe", session: "0", rating: 4 },
   ];
 
+  const handleAddFeedbackclick =() => {
+      navigate("/app/feedback-type-list");
+  }
+
   return (
-    <div className="container"> 
+    <div className="container FeedbackDashboard"> 
      <h2 className="page-header text-center">Feedback Dashboard</h2>
-    <Box p={3} className="mb-5">
+    <Box p={3} className="mb-5 ">
      
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
       
@@ -72,7 +78,7 @@ function FeedbackDashboard() {
         Add Feedback
       </Button> */}
       <div>
-        <button className="btn btn-primary" style={{ marginLeft: "10px" }}>
+        <button className="btn btn-primary" onClick={handleAddFeedbackclick} style={{ marginLeft: "10px" }}>
           Add Feedback
         </button>
       </div>

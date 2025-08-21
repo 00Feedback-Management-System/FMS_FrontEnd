@@ -1,72 +1,116 @@
 import React, {useState} from "react";
 import { Drawer, List, ListItem, ListItemIcon, ListItemText, Box, Toolbar, AppBar, Typography, Collapse } from "@mui/material";
-import FeedbackIcon from "@mui/icons-material/Feedback";
-import ReportIcon from '@mui/icons-material/Summarize';
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import PersonIcon from '@mui/icons-material/Person';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
+import AddToPhotosIcon from '@mui/icons-material/AddToPhotos';
+import EditSquareIcon from '@mui/icons-material/EditSquare';
+import ImportContactsIcon from '@mui/icons-material/ImportContacts';
+import { useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
 function DashboardLayout() {
     const [openReports, setOpenReports] = useState(false);
+    const [openFeedbackSummary, setOpenFeedbackSummary] = useState(false);
+    const navigate = useNavigate();
+
+    const handleFeedbackClick = () => {
+        navigate("/app/feedback-dashboard");
+    };
+
+    const handleScheduleFeedbackClick = () => {
+        navigate("/app/schedule-Feedback-List");
+    };
 
     const handleReportsClick = () => {
         setOpenReports(!openReports);
     };
 
+    const handleFeedbackSummaryClick = () => {
+        setOpenFeedbackSummary(!openFeedbackSummary);
+    }
+
     const handleLogout = () => {
         console.log("Logout Succesfull")
+        navigate("/");
     }
 
     const username = "Suhas Patil";
+    const drawerWidth = 250;
 
     return (
         <Box sx={{ display: "flex" }}>
-            <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-                <Toolbar>
-                    <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-                        Dashboard
-                    </Typography>
-                    <Typography variant="body1" sx={{ mr: 1 }}>
-                        {username}
-                    </Typography>
-                    <AccountCircleIcon />
-                </Toolbar>
-            </AppBar>
             <Drawer
                 variant="permanent"
                 sx={{
-                    width: 250,
+                    width: drawerWidth,
                     flexShrink: 0,
-                    [`& .MuiDrawer-paper`]: { width: 250, boxSizing: "border-box", display: "flex", flexDirection: "column", justifyContent: "space-between" },
+                    [`& .MuiDrawer-paper`]: { width: drawerWidth },
                 }}
             >
-                <Toolbar />
+                <Box
+                    sx={{
+                        bgcolor: (theme) => theme.palette.primary.main,
+                        color: (theme) => theme.palette.primary.contrastText,
+                        display: "flex",
+                        alignItems: "center",
+                        height: 64,
+                        px: 2,
+                        fontWeight: 600,
+                        fontSize: 22,
+                        letterSpacing: 1.2
+                    }}
+                >
+                    <AccountCircleIcon sx={{mr: 2}}/>
+                    {username}
+                </Box>
                 <Box sx={{flexGrow: 1}}>
                     <List>
-                        <ListItem button component="a" href="/feedback">
+                        <ListItem button onClick={handleFeedbackClick}>
                             <ListItemIcon>
-                                <FeedbackIcon />
+                                <ThumbUpAltIcon />
                             </ListItemIcon>
                             Feedback
                         </ListItem>
+                        <ListItem button onClick={handleScheduleFeedbackClick}>
+                            <ListItemIcon>
+                                <AddToPhotosIcon />
+                            </ListItemIcon>
+                            Schedule Feedback
+                        </ListItem>
                         <ListItem button onClick={handleReportsClick}>
                             <ListItemIcon>
-                                <ReportIcon />
+                                <EditSquareIcon />
                             </ListItemIcon>
                             Reports
                             {openReports ? <ExpandLess /> : <ExpandMore />}
                         </ListItem>
                         <Collapse in={openReports}>
                             <List >
-                                <ListItem button component="a" href="/feedback-reports" sx={{ pl: 8 }}>
-                                Feedback Report
-                                </ListItem>
-                                <ListItem button component="a" href="/coursewise-reports" sx={{ pl: 8 }}>
+                                <ListItem button onClick={() => navigate("/app/coursewise-report")} sx={{ pl: 8 }}>
                                 Coursewise Report
                                 </ListItem>
+                                <ListItem button onClick={() => navigate("/app/staff-dashboard")} sx={{ pl: 8 }}>
+                                Staff Report
+                                </ListItem>  
                             </List>
+                        </Collapse>
+                        <ListItem button onClick={handleFeedbackSummaryClick}>
+                            <ListItemIcon>
+                                <ImportContactsIcon />
+                            </ListItemIcon>
+                            Feedback Summary
+                            {openFeedbackSummary ? <ExpandLess /> : <ExpandMore />}
+                        </ListItem>
+                        <Collapse in={openFeedbackSummary}>
+                            <ListItem button onClick={() => navigate("/app/faculty-feedback-summary")} sx={{ pl: 8 }}>
+                                Faculty Feedback Summary
+                            </ListItem>
+                            <ListItem button onClick={() => navigate("/app/per-faculty-feedback-summary")} sx={{ pl: 8 }}>
+                                Per-Faculty Feedback Summary
+                            </ListItem>
                         </Collapse>
                     </List>
                 </Box>
@@ -81,8 +125,17 @@ function DashboardLayout() {
                     </List>
                 </Box>
             </Drawer>
-            <Box>
-                
+            <Box
+                component="main"
+                sx={{
+                    flexGrow: 1,
+                    bgcolor: "background.default",
+                    p: 3,
+                    width: "100%",
+                    minHeight: "100vh"
+                }}
+            >
+                <Outlet />
             </Box>
         </Box>
     );

@@ -8,11 +8,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 const columns= [
-  { field: 'id', headerName: 'ID', width: 90 },
+  { field: 'id', headerName: 'ID', width: 50 },
   {
     field: 'title',
     headerName: 'Title',
-    width: 150,
+    width: 110,
     editable: true,
     renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Title</span>
@@ -21,7 +21,7 @@ const columns= [
   {
     field: 'module',
     headerName: 'Module',
-    width: 150,
+    width: 110,
     editable: true,
     renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Module</span>
@@ -41,7 +41,7 @@ const columns= [
     field: 'staff',
     headerName: 'Staff',
     sortable: false,
-    width: 160,
+    width: 110,
     renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Staff</span>
     ),
@@ -62,7 +62,7 @@ const columns= [
   {
     field: 'behaviour',
     headerName: 'Behaviour',
-    width: 150,
+    width: 110,
     editable: true,
     renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Behaviour</span>
@@ -71,7 +71,7 @@ const columns= [
   {
       field: "actions",
       headerName: "Action",
-      flex: 1,
+      width: 150,
       renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Action</span>
     ),
@@ -94,15 +94,14 @@ const rows = [
 export default function FeedbackTypeList() {
     const navigate = useNavigate();
     const handleAddClick = () => {
-    debugger;
-    navigate("/feedback-type-form"); 
+    navigate("/app/feedback-type-form"); 
   };
 
   return (
 
-    <div>
+    <div className="container">
         
-        <h2 className="table-header" style={{ margin:60 } }>Feedback Type List</h2>
+        <h2 className="table-header text-center">Feedback Type List</h2>
         {/* <h1 className="table-header" > Feedback Type List </h1> */}
          <Box
         sx={{
@@ -128,7 +127,7 @@ export default function FeedbackTypeList() {
         </Button>
       </Box>
 
-        <Box sx={{ height: 400, width: '200%' }}>
+        <Box sx={{ height: 400, width: '120%' }}>
       <DataGrid
         rows={rows}
         columns={columns}
