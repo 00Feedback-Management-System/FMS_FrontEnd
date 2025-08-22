@@ -46,11 +46,11 @@ function AddQuestionForm({questions,setQuestions}){
         </select>
       </div>
 
-      <div className="d-flex justify-content-between">
-        <button className="btn btn-success" onClick={handleAdd}>
+      <div className="text-center mr-2">
+        <button className="btn btn-success " onClick={handleAdd}>
           Add
         </button>
-        <button className="btn btn-danger" onClick={() => navigate("/")}>
+        <button className="btn btn-danger"  style={{ marginLeft: 10 }} onClick={() => navigate("/app/feedback-type-form")}>
           Cancel
         </button>
       </div>

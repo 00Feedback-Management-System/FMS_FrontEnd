@@ -1,4 +1,3 @@
-
 import React from "react";
 import Box from '@mui/material/Box';
 import { DataGrid} from '@mui/x-data-grid';
@@ -13,6 +12,7 @@ const columns= [
     field: 'title',
     headerName: 'Title',
     width: 110,
+    flex:1,
     editable: true,
     renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Title</span>
@@ -22,6 +22,7 @@ const columns= [
     field: 'module',
     headerName: 'Module',
     width: 110,
+    flex:1,
     editable: true,
     renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Module</span>
@@ -30,8 +31,8 @@ const columns= [
   {
     field: 'group',
     headerName: 'Group',
-    type: 'number',
     width: 110,
+    flex:1,
     editable: true,
     renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Group</span>
@@ -42,6 +43,7 @@ const columns= [
     headerName: 'Staff',
     sortable: false,
     width: 110,
+    flex:1,
     renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Staff</span>
     ),
@@ -51,8 +53,8 @@ const columns= [
 {
     field: 'session',
     headerName: 'Session',
-    type: 'number',
     width: 110,
+    flex:1,
     editable: true,
     renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Session</span>
@@ -63,6 +65,7 @@ const columns= [
     field: 'behaviour',
     headerName: 'Behaviour',
     width: 110,
+    flex:1,
     editable: true,
     renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Behaviour</span>
@@ -72,6 +75,7 @@ const columns= [
       field: "actions",
       headerName: "Action",
       width: 150,
+      flex:2,
       renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Action</span>
     ),
@@ -101,7 +105,7 @@ export default function FeedbackTypeList() {
 
     <div className="container">
         
-        <h2 className="table-header text-center">Feedback Type List</h2>
+        <h2 className="table-header text-center mt-3">Feedback Type List</h2>
         {/* <h1 className="table-header" > Feedback Type List </h1> */}
          <Box
         sx={{
@@ -109,7 +113,6 @@ export default function FeedbackTypeList() {
           justifyContent: "center",
           alignItems: "center",
           mb: 2,
-          backgroundColor: "#f5f5f5",
           padding: 2,
           borderRadius: 1,
         }}
@@ -119,15 +122,20 @@ export default function FeedbackTypeList() {
         <Button variant="outlined" color="primary" 
          sx={{
             position: "absolute",
-            right: 16, 
+            right: 50, 
           }}
             onClick={handleAddClick} 
             >
           Add Feedback Type
         </Button>
+        {/* <div>
+        <button className="btn btn-primary" onClick={handle} style={{ marginLeft: "10px" }}>
+          Add Feedback Type
+        </button>
+      </div> */}
       </Box>
 
-        <Box sx={{ height: 400, width: '120%' }}>
+        <Box sx={{ height: 400, width: '100%' }}>
       <DataGrid
         rows={rows}
         columns={columns}
@@ -138,7 +146,7 @@ export default function FeedbackTypeList() {
             },
           },
         }}
-        pageSizeOptions={[5]}
+        pageSizeOptions={[5,10,20]}
         disableRowSelectionOnClick
       />
     </Box>

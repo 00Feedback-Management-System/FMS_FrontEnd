@@ -38,8 +38,8 @@ function FeedbackDashboard() {
   }
 
   return (
-    <div className="container FeedbackDashboard"> 
-     <h2 className="page-header text-center">Feedback Dashboard</h2>
+    <div className="container "> 
+     <h2 className="page-header text-center mt-3">Feedback Dashboard</h2>
     <Box p={3} className="mb-5 ">
      
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>

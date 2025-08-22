@@ -10,7 +10,8 @@ const columns= [
   {
     field: 'rollno',
     headerName: 'Roll No',
-    width: 150,
+    width: 80,
+    flex:1,
     editable: true,
      renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Roll No</span>
@@ -19,7 +20,8 @@ const columns= [
   {
     field: 'firstname',
     headerName: 'FIRST NAME',
-    width: 150,
+    width: 80,
+    flex:1,
     editable: true,
      renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>FIRST NAME</span>
@@ -28,8 +30,8 @@ const columns= [
   {
     field: 'lastname',
     headerName: 'LAST NAME',
-    type: 'number',
-    width: 110,
+    width: 80,
+    flex:1,
     editable: true,
      renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>LAST NAME</span>
@@ -39,7 +41,8 @@ const columns= [
     field: 'emailid',
     headerName: 'Email ID',
     sortable: false,
-    width: 220,
+    width: 150,
+    flex:1,
      renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Email ID</span>
     ),
@@ -73,9 +76,9 @@ const allStudents = {
 
   return (
 
-    <div>
+    <div className="container">
         
-        <h2 className="table-header" style={{ margin:60 } }> Filled Student List</h2>
+        <h2 className="table-header text-center mt-3" > Filled Student List</h2>
         {/* <h1 className="table-header" > Feedback Type List </h1> */}
          <Box
         sx={{
@@ -83,7 +86,6 @@ const allStudents = {
           justifyContent: "center",
           alignItems: "center",
           mb: 2,
-          backgroundColor: "#f5f5f5",
           padding: 2,
           borderRadius: 1,
         }}
@@ -92,7 +94,7 @@ const allStudents = {
 
       </Box>
 
-        <Box sx={{ height: 400, width: '200%' }}>
+        <Box sx={{ height: 400, width: '100%' }}>
       <DataGrid
         rows={rows}
         columns={columns}
@@ -103,7 +105,7 @@ const allStudents = {
             },
           },
         }}
-        pageSizeOptions={[5]}
+        pageSizeOptions={[5,10,20]}
         disableRowSelectionOnClick
       />
     </Box>

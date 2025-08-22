@@ -18,6 +18,7 @@ import Faculty_Feedback_summary from './pages/Reports/Faculty_Feedback_summary';
 import Home from './pages/Home/Home';
 import StaffDashboard from './pages/Staff/StaffDashboard';
 import Coursewise_Report from './pages/Reports/Coursewise_Report';
+import Forgot_Password from './pages/Login/Forgot_Password';
 
 function App() {
   const [questions, setQuestions] = useState([]);
@@ -31,6 +32,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/forgot-password" element={<Forgot_Password />} />
           <Route path="/app" element={<Home />}>
             <Route path="feedback-type-list" element={<FeedbackTypeList />} />
             <Route path="schedule-Feedback-List" element={<ScheduleFeedbackList />} />

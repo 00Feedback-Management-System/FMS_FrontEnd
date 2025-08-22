@@ -22,8 +22,9 @@ function FacultyFeedbackSummary() {
     };
 
     return (
-        <div className="container py-4" style={{ maxWidth: 700, background: "#d3d3d3", borderRadius: 8 }}>
-            <div className="row mb-3">
+        <div className="container ">
+            <h2 className="page-header text-center mt-3 ">Per Faculty Feedback Summary</h2>
+            <div className="row mb-3 mt-3">
                 <div className="col">
                     <select className="form-select">
                         <option>Course Type</option>
