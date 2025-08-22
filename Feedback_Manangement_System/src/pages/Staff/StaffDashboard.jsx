@@ -1,12 +1,13 @@
 import Box from '@mui/material/Box';
 import { DataGrid} from '@mui/x-data-grid';
-import { useNavigate } from "react-router-dom";
+//import { useNavigate } from "react-router-dom";
 const columns= [
   { field: 'id', headerName: 'ID', width: 90 },
   {
     field: 'course',
     headerName: 'Course',
-    width: 150,
+   // width: 150,
+    flex: 1,
     editable: true,
     renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Course</span>
@@ -15,7 +16,8 @@ const columns= [
   {
     field: 'date',
     headerName: 'Date',
-    width: 150,
+   // width: 150,
+    flex: 1,
     editable: true,
     renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Date</span>
@@ -24,8 +26,9 @@ const columns= [
   {
     field: 'module',
     headerName: 'Module',
-    type: 'number',
-    width: 110,
+   // type: 'number',
+   // width: 150,
+    flex: 1,
     editable: true,
     renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Module</span>
@@ -35,7 +38,8 @@ const columns= [
     field: 'type',
     headerName: 'Type',
     sortable: false,
-    width: 110,
+    flex: 1,
+  //  width: 150,
     renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Type</span>
     ),
@@ -45,8 +49,9 @@ const columns= [
 {
     field: 'session',
     headerName: 'Session',
-    type: 'number',
-    width: 110,
+   // type: 'number',
+   // width: 150,
+    flex: 1,
     editable: true,
     renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Session</span>
@@ -56,7 +61,8 @@ const columns= [
   {
     field: 'rating',
     headerName: 'Rating',
-    width: 150,
+   // width: 150,
+    flex: 1,
     editable: true,
     renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Rating</span>
@@ -75,16 +81,15 @@ export default function StaffDashboard() {
 
   return (
 
-    <div>
+    <div className='container'>
         
-        <h2 className="table-header" style={{ margin:60 } }>My Feedback</h2>
+        <h2 className="table-header text-center mt-3">My Feedback</h2>
          <Box
         sx={{
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
           mb: 2,
-          backgroundColor: "#f5f5f5",
           padding: 2,
           borderRadius: 1,
         }}
@@ -93,7 +98,7 @@ export default function StaffDashboard() {
 
       </Box>
 
-        <Box sx={{ height: 400, width: '80%' }}>
+        <Box sx={{ height: 400, width: '100%' }}>
       <DataGrid
         rows={rows}
         columns={columns}

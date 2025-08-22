@@ -10,33 +10,32 @@ import { Remove } from "@mui/icons-material";
 
 export default function ScheduleFeedbackList() {
     const navigate = useNavigate();
-    const columns= [
-  { field: 'id', headerName: 'ID', width: 90 },
+   const columns= [
+  { field: 'id', headerName: 'ID', width: 50 },
   {
     field: 'course',
     headerName: 'Course',
-    width: 150,
+    flex:1,
     editable: true,
-     renderHeader: () => (
+    renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Course</span>
     ),
   },
   {
     field: 'module',
     headerName: 'Module',
-    width: 100,
+    flex:1,
     editable: true,
-     renderHeader: () => (
+    renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Module</span>
     ),
   },
   {
     field: 'type',
     headerName: 'Type',
-    type: 'number',
-    width: 110,
+    flex:1,
     editable: true,
-     renderHeader: () => (
+    renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Type</span>
     ),
   },
@@ -44,91 +43,82 @@ export default function ScheduleFeedbackList() {
     field: 'session',
     headerName: 'Session',
     sortable: false,
-    width: 100,
-     renderHeader: () => (
+    flex:1,
+    renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Session</span>
     ),
-    
   },
-
-{
+  {
     field: 'date',
     headerName: 'Date',
-    type: 'number',
-    width: 150,
+    flex:1,
     editable: true,
-     renderHeader: () => (
+    renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Date</span>
     ),
   },
-  
   {
     field: 'status',
     headerName: 'Status',
-    width: 100,
+    flex:1,
     editable: true,
-     renderHeader: () => (
+    renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Status</span>
     ),
   },
-
-{
-  field: 'filledby',
-  headerName: 'FilledBy',
-  width: 110,
-   renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>FilledBy</span>
-    ),
-  renderCell: (params) => (
-    <Button
-      onClick={() => navigate(`/student-list/${params.row.id}`)}
-      sx={{ color: 'blue', textDecoration: 'underline', padding: 0 }}
-    >
-      {params.value}
-    </Button>
-  ),
-},
-
   {
-    field: 'remaining',
-    headerName: 'Remaining',
-    type: 'number',
-    width: 110,
-    editable: true,
-     renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>Remaining</span>
+    field: 'filledby',
+    headerName: 'FilledBy',
+    flex:1,
+    renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>FilledBy</span>
     ),
     renderCell: (params) => (
       <a
-        href={`/remaining/${params.row.id}`}
+        href={`student-list/${params.row.id}`}
         style={{ color: 'blue', textDecoration: 'underline' }}
       >
         {params.value}
       </a>
     ),
   },
-  
   {
-      field: "actions",
-      headerName: "Action",
-      flex: 1,
-       renderHeader: () => (
+    field: 'remaining',
+    headerName: 'Remaining',
+    flex:1,
+    editable: true,
+    renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>Remaining</span>
+    ),
+    renderCell: (params) => (
+      <a
+        href={`remaining/${params.row.id}`}
+        style={{ color: 'blue', textDecoration: 'underline' }}
+      >
+        {params.value}
+      </a>
+    ),
+  },
+  {
+    field: "actions",
+    headerName: "Action",
+    flex: 2,
+    renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Action</span>
     ),
-      renderCell: () => (
-        <>
-          <Button color="primary" size="small"><EditIcon/></Button>
-          <Button color="error" size="small"><DeleteIcon/></Button>
-          <Button color="error" size="small"><Remove/></Button>
-        </>
-      )
-    },
-
+    renderCell: () => (
+      <>
+        <Button color="primary" size="small"><EditIcon/></Button>
+        <Button color="error" size="small"><DeleteIcon/></Button>
+        <Button color="error" size="small"><Remove/></Button>
+      </>
+    )
+  },
 ];
 
 const rows = [
-  { id: 1, course: 'PG-DAC',module: 'Dot Net', type: 'Module end',session: '3',date:'13/08/25 -15/08/25',status:'Active', filledby:'2',remaining:'2'},
-   { id: 2, course: 'PG-DMC',module: 'Java', type: 'Module end',session: '6',date:'13/08/25 -15/08/25',status:'inactive', filledby:'2',remaining:'2'},
+  { id: 1, course: 'PG-DAC',module: 'Dot Net', type: 'Module end',session: '3',date:'13/08/25',status:'Active', filledby:'2',remaining:'2'},
+   { id: 2, course: 'PG-DMC',module: 'Java', type: 'Module end',session: '6',date:'13/08/25',status:'inactive', filledby:'2',remaining:'2'},
    
 ];
         const handleAddClick = () => {
@@ -136,9 +126,9 @@ const rows = [
       };
   return (
 
-    <div >
+    <div  className="container">
     
-        <h2 className="table-header" style={{ margin:60,alignItems: "center" } }>Schedule Feedback List</h2>
+        <h2 className="table-header text-center mt-3" >Schedule Feedback List</h2>
         
          <Box
         sx={{
@@ -146,7 +136,6 @@ const rows = [
           justifyContent: "center",
           alignItems: "center",
           mb: 2,
-          backgroundColor: "#f5f5f5",
           padding: 2,
           borderRadius: 1,
         }}
@@ -158,7 +147,7 @@ const rows = [
         <Button variant="outlined" color="primary" 
          sx={{
             position: "absolute",
-            right: 16, 
+            right: 50, 
           }}
           onClick={handleAddClick} 
             >
@@ -166,7 +155,7 @@ const rows = [
         </Button>
       </Box>
 
-        <Box sx={{ height: 400, width: '200%' }}>
+        <Box sx={{ height: 400, width: '100%' }}>
       <DataGrid
         rows={rows}
         columns={columns}
@@ -174,10 +163,11 @@ const rows = [
           pagination: {
             paginationModel: {
               pageSize: 5,
+              
             },
           },
         }}
-        pageSizeOptions={[5]}
+        pageSizeOptions={[5,10,20]}
         disableRowSelectionOnClick
       />
     </Box>

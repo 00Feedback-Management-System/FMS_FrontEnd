@@ -19,7 +19,7 @@ const rows = [
 
   return (
      <div className="container">
-           <h2 className="page-header text-center">Admin Dashboard</h2>
+           <h2 className="page-header text-center mt-3">Admin Dashboard</h2>
    
         
    

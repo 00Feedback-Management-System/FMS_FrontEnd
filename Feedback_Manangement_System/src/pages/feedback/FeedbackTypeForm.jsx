@@ -12,8 +12,8 @@ function FeedbackTypeForm({ questions, setQuestions }){
 
     return (
           
-            <div className="container my-4">
-                <h4 className="text-center mb-4">Feedback Type Form</h4>
+            <div className="container">
+                <h2 className="text-center mt-3 mb-3">Feedback Type Form</h2>
                 <form className="p-4 border shadow-sm bg-light">
                     <div className="row mb-3">
                         <div className="col-md-6 mb-2">
@@ -74,7 +74,7 @@ function FeedbackTypeForm({ questions, setQuestions }){
                 <h5 className="mt-4">Questions</h5>
                   <button
                       className="btn btn-primary mb-3"
-                      onClick={() => navigate("/add-question")}
+                      onClick={() => navigate("/app/add-question")}
                   >
                   Add Questions
                  </button>
@@ -117,9 +117,9 @@ function FeedbackTypeForm({ questions, setQuestions }){
         </tbody>
       </table>
 
-      <div className="d-flex justify-content-between">
-        <button className="btn btn-success">Submit</button>
-        <button className="btn btn-danger">Cancel</button>
+      <div className="text-center mb-4">
+        <button className="btn btn-success" >Submit</button>
+        <button className="btn btn-danger"  style={{ marginLeft: 10 }}>Cancel</button>
       </div>
     </div>
     

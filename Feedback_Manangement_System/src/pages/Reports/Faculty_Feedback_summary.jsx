@@ -20,7 +20,7 @@ const rows = [
 function FeedbackDashboard() {
   return (
     <div className="container">
-        <h2 className="page-header text-center">Faculty Feedback Summary</h2>
+        <h2 className="page-header text-center mt-3">Faculty Feedback Summary</h2>
 
      
 

@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState } from 'react'
 import './Login.css'
-//import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 function Forgot_Password() {
     
@@ -11,7 +11,7 @@ function Forgot_Password() {
 
   return (
     <div className='container'>
-      <h2 className='page-header text-center'>Forgot Password</h2>
+      <h2 className='page-header text-center mt-3'>Forgot Password</h2>
       <div className='login-form'>
        
         <div className='mb-3'>
@@ -42,9 +42,9 @@ function Forgot_Password() {
           />
         </div>
         <div className='mb-3 text-center'>
-          {/* <div className='mb-3'>
+          <div className='mb-3'>
             Already have an account yet? <Link to='/'>Login here</Link>
-          </div> */}
+          </div>
           <button
             className='btn btn-success'
           >
