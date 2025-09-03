@@ -10,7 +10,7 @@ function AddQuestionForm({questions,setQuestions}){
     const handleAdd=()=>{
         if(text.trim() && type){
             setQuestions([...questions,{text,type}]);
-            navigate("/");
+            navigate("/app/feedback-type-form");
         } else {
             alert("Please enter question text and type");
         }
