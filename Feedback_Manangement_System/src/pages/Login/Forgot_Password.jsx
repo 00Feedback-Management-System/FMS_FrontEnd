@@ -41,6 +41,14 @@ function Forgot_Password() {
             className='form-control'
           />
         </div>
+        <div className='mb-3'>
+            <label>Role</label>
+            <select className='form-select'>
+            <option selected value="admin">Admin</option>
+            <option value="faculty">Faculty</option>
+            <option value="student">Student</option>
+            </select>
+          </div>
         <div className='mb-3 text-center'>
           <div className='mb-3'>
             Already have an account yet? <Link to='/'>Login here</Link>

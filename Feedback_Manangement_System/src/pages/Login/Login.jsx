@@ -35,6 +35,14 @@ function Login() {
             />
           </div>
           <div className='mb-3'>
+            <label>Role</label>
+            <select className='form-select'>
+            <option selected value="admin">Admin</option>
+            <option value="faculty">Faculty</option>
+            <option value="student">Student</option>
+            </select>
+          </div>
+          <div className='mb-3'>
             <input
               type='checkbox'
               id='remember'
