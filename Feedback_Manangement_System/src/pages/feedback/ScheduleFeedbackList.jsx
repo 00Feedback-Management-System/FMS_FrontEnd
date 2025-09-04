@@ -6,8 +6,10 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-//import { Remove } from "@mui/icons-material";
+import { Remove } from "@mui/icons-material";
 import Api from "../../services/api"; 
+import axios from "axios";
+
 export default function ScheduleFeedbackList() {
     const navigate = useNavigate();
 const [rows, setRows] = useState([]);
@@ -26,7 +28,7 @@ useEffect(() => {
         navigate("/app/schedule-feedback-form"); 
       };
 
-         const handleDelete = async (id) => {
+      const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this record?")) return;
 
     try {
@@ -156,16 +158,22 @@ useEffect(() => {
     renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Action</span>
     ),
-    renderCell: () => (
-      <>
-        <Button color="primary" size="small"><EditIcon/></Button>
-         <Button
-            color="error"
-            size="small"
-            onClick={() => handleDelete(params.row.feedback_id)}
-          >
-            <DeleteIcon />
-          </Button>
+     renderCell: (params) => (
+    <>
+      <Button
+        color="primary"
+        size="small"
+        onClick={() => handleEdit(params.row.feedback_id)}
+      >
+        <EditIcon />
+      </Button>
+      <Button
+        color="error"
+        size="small"
+        onClick={() => handleDelete(params.row.feedback_id)}
+      >
+        <DeleteIcon />
+      </Button>
         
       </>
     )
@@ -173,7 +181,6 @@ useEffect(() => {
 ];
 
 
-      
   return (
 
     <div  className="container">
