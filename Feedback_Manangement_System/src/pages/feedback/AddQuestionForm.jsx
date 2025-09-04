@@ -1,23 +1,41 @@
-import React, {useState} from "react";
-import {useNavigate} from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-function AddQuestionForm({questions,setQuestions}){
-    const [text,setText]=useState("");
-    const [type,setType]=useState("");
-    const navigate=useNavigate();
+function AddQuestionForm() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { id } = useParams(); // FeedbackType ID for update
+  const isUpdate = Boolean(id);
 
-    const handleAdd=()=>{
-        if(text.trim() && type){
-            setQuestions([...questions,{text,type}]);
-            navigate("/app/feedback-type-form");
-        } else {
-            alert("Please enter question text and type");
-        }
-        
+  const formData = location.state?.formData || {};
+  const initialQuestions = location.state?.questions || [];
+
+  const [text, setText] = useState("");
+  const [type, setType] = useState("");
+  const [questions, setQuestions] = useState(initialQuestions);
+
+  const handleAdd = () => {
+    if (!text.trim() || !type) {
+      alert("Please enter question text and type");
+      return;
+    }
+
+    // ✅ Match backend DTO (question, questionType)
+    const newQuestion = {
+      question: text,
+      questionType: type,
     };
 
-    return (
+    const updatedQuestions = [...questions, newQuestion];
+
+    // Navigate back to FeedbackTypeForm with updated questions
+    navigate("/app/feedback-type-form" + (isUpdate ? `/${id}` : ""), {
+      state: { formData, questions: updatedQuestions, isUpdate, id },
+    });
+  };
+
+  return (
     <div className="container mt-4 p-4 border rounded bg-light">
       <h4 className="text-center mb-4">Add Question</h4>
 
@@ -31,30 +49,30 @@ function AddQuestionForm({questions,setQuestions}){
         />
       </div>
 
-      <div className="mb-4">
+      <div className="mb-3">
         <label className="form-label">Type</label>
         <select
           className="form-select"
           value={type}
           onChange={(e) => setType(e.target.value)}
-          defaultValue=""
         >
-          <option value="" disabled hidden>Select Type</option>
-          <option value="Descriptive">Descriptive</option>
-          <option value="MCQ">MCQ</option>
-          <option value="Rating">Rating</option>
+          <option value="">Select Type</option>
+          <option value="mcq">MCQ</option>
+          <option value="rating">Rating</option>
+          <option value="descriptive">Descriptive</option>
         </select>
       </div>
 
-      <div className="text-center mr-2">
-        <button className="btn btn-success " onClick={handleAdd}>
-          Add
+      <div className="text-center">
+        <button className="btn btn-primary me-2" onClick={handleAdd}>
+          Add & Back
         </button>
-        <button className="btn btn-danger"  style={{ marginLeft: 10 }} onClick={() => navigate("/app/feedback-type-form")}>
+        <button className="btn btn-danger" onClick={() => navigate(-1)}>
           Cancel
         </button>
       </div>
     </div>
-    );
+  );
 }
+
 export default AddQuestionForm;

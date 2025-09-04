@@ -31,25 +31,31 @@ function App() {
       {/* <DashboardLayout/> */}
       <Router>
         <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/forgot-password" element={<Forgot_Password />} />
-          <Route path="/app" element={<Home />}>
-            <Route path="feedback-type-list" element={<FeedbackTypeList />} />
-            <Route path="schedule-Feedback-List" element={<ScheduleFeedbackList />} />
-            <Route path="student-list/:scheduleId" element={<StudentList />} />
-            <Route path="remaining/:scheduleId" element={<RemainingStudent />} />
-            <Route path="feedback-type-form" element={<FeedbackTypeForm questions={questions} setQuestions={setQuestions} />} />
-            <Route path="add-question" element={<AddQuestionForm questions={questions} setQuestions={setQuestions} />} />
-            <Route path="edit-group/:id" element={<EditGroup groups={groups} setGroups={setGroups} />} />
-            <Route path="schedule-feedback-form" element={<ScheduleFeedbackForm groups={groups} setGroups={setGroups} />}></Route>
-            <Route path="student-feedback-form" element={<StudentFeedbackForm />} />
-            <Route path="per-faculty-feedback-summary" element={<FacultyFeedbackSummary />} />
-            <Route path="feedback-dashboard" element={<FeedbackDashboard />} />
-            <Route path="faculty-feedback-summary" element={<Faculty_Feedback_summary />} />
-            <Route path="staff-dashboard" element={<StaffDashboard />} />
-            <Route path="coursewise-report" element={<Coursewise_Report />} />
-          </Route>
-        </Routes>
+  <Route path="/" element={<Login />} />
+  <Route path="/forgot-password" element={<Forgot_Password />} />
+  
+  <Route path="/app" element={<Home />}>
+    <Route path="feedback-type-list" element={<FeedbackTypeList />} />
+    <Route path="feedback-type-form" element={<FeedbackTypeForm />} />               {/* Create */}
+    <Route path="feedback-type-form/:id" element={<FeedbackTypeForm />} />           {/* Update */}
+    <Route path="add-question" element={<AddQuestionForm />} />                      {/* Create */}
+    <Route path="add-question/:id" element={<AddQuestionForm />} />                  {/* Update */}
+    
+    {/* Other routes */}
+    <Route path="schedule-feedback-list" element={<ScheduleFeedbackList />} />
+    <Route path="student-list/:scheduleId" element={<StudentList />} />
+    <Route path="remaining/:scheduleId" element={<RemainingStudent />} />
+    <Route path="edit-group/:id" element={<EditGroup groups={groups} setGroups={setGroups} />} />
+    <Route path="schedule-feedback-form" element={<ScheduleFeedbackForm groups={groups} setGroups={setGroups} />} />
+    <Route path="student-feedback-form" element={<StudentFeedbackForm />} />
+    <Route path="per-faculty-feedback-summary" element={<FacultyFeedbackSummary />} />
+    <Route path="feedback-dashboard" element={<FeedbackDashboard />} />
+    <Route path="faculty-feedback-summary" element={<Faculty_Feedback_summary />} />
+    <Route path="staff-dashboard" element={<StaffDashboard />} />
+    <Route path="coursewise-report" element={<Coursewise_Report />} />
+  </Route>
+</Routes>
+
       </Router>
     </div>
   );
