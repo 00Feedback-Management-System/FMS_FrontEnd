@@ -1,13 +1,14 @@
-import React, { useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Api from "../../services/api";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-
-function FeedbackTypeForm({ questions, setQuestions }) {
+function FeedbackTypeForm() {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const location = useLocation();
+  const isUpdate = Boolean(id);
 
-  // State for form fields
   const [formData, setFormData] = useState({
     feedbackTypeTitle: "",
     feedbackTypeDescription: "",
@@ -18,44 +19,90 @@ function FeedbackTypeForm({ questions, setQuestions }) {
     behaviour: false,
   });
 
-  // Handle input changes
+  const [questions, setQuestions] = useState([]);
+
+  // ✅ Restore from AddQuestionForm if navigated with state
+  useEffect(() => {
+    if (location.state?.formData) {
+      setFormData(location.state.formData);
+    }
+    if (location.state?.questions) {
+      setQuestions(location.state.questions);
+    }
+  }, [location.state]);
+
+  // ✅ Fetch only if updating and NOT coming back from AddQuestionForm
+  useEffect(() => {
+    if (isUpdate && !location.state) {
+      Api.get(`FeedbackType/${id}`)
+        .then((res) => {
+          const data = res.data;
+          setFormData({
+            feedbackTypeTitle: data.feedbackTypeTitle || "",
+            feedbackTypeDescription: data.feedbackTypeDescription || "",
+            isModule: data.isModule || false,
+            group: data.group || "",
+            isStaff: data.isStaff || false,
+            isSession: data.isSession || false,
+            behaviour: data.behaviour || false,
+          });
+          setQuestions(
+            (data.questions || []).map((q) => ({
+              question: q.question,
+              questionType: q.questionType,
+            }))
+          );
+        })
+        .catch((err) => {
+          console.error("Error fetching feedback type:", err.response || err);
+          alert("Failed to fetch feedback type data. Check backend/API.");
+        });
+    }
+  }, [id, isUpdate, location.state]);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: type === "checkbox" ? checked : value,
-    });
+    }));
   };
 
-  // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Prepare payload matching backend DTO
     const payload = {
-      ...formData,
-      questions: questions.map((q) => ({
-        question: q.text,
-        questionType: q.type,
-      })),
+      feedbackTypeTitle: formData.feedbackTypeTitle,
+      feedbackTypeDescription: formData.feedbackTypeDescription,
+      isModule: formData.isModule,
+      group: formData.group,
+      isStaff: formData.isStaff,
+      isSession: formData.isSession,
+      behaviour: formData.behaviour,
+      questions: questions, // ✅ Keeps newly added questions
     };
 
     try {
-      const response = await Api.post("FeedbackType/CreateFeedbackType", payload)
-      alert("Feedback Type created successfully!");
-      console.log(response.data);
-
-      // Redirect after success
+      if (isUpdate) {
+        await Api.put(`FeedbackType/${id}`, payload);
+        alert("Feedback Type updated successfully!");
+      } else {
+        await Api.post("FeedbackType/CreateFeedbackType", payload);
+        alert("Feedback Type created successfully!");
+      }
       navigate("/app/feedback-type-list");
     } catch (error) {
-      console.error("Error creating feedback type:", error);
-      alert("Something went wrong while saving.");
+      console.error("Error saving feedback type:", error.response || error);
+      alert("Failed to save feedback type.");
     }
   };
 
   return (
     <div className="container">
-      <h2 className="text-center mt-3 mb-3">Feedback Type Form</h2>
+      <h2 className="text-center mt-3 mb-3">
+        {isUpdate ? "Update Feedback Type" : "Create Feedback Type"}
+      </h2>
+
       <form className="p-4 border shadow-sm bg-light" onSubmit={handleSubmit}>
         <div className="row mb-3">
           <div className="col-md-6 mb-2">
@@ -99,6 +146,7 @@ function FeedbackTypeForm({ questions, setQuestions }) {
               onChange={handleChange}
               className="form-control"
               placeholder="Enter description"
+              required
             />
           </div>
           <div className="col-md-6 mb-2">
@@ -117,7 +165,7 @@ function FeedbackTypeForm({ questions, setQuestions }) {
         </div>
 
         <div className="row mb-3">
-          <div className="col-md-6 mb-2">
+          <div className="col-md-4 mb-2">
             <label className="form-label">Staff</label>
             <select
               className="form-select"
@@ -134,7 +182,7 @@ function FeedbackTypeForm({ questions, setQuestions }) {
               <option>No</option>
             </select>
           </div>
-          <div className="col-md-3 mb-2">
+          <div className="col-md-4 mb-2">
             <label className="form-label">Session</label>
             <select
               className="form-select"
@@ -151,14 +199,17 @@ function FeedbackTypeForm({ questions, setQuestions }) {
               <option>No</option>
             </select>
           </div>
-          <div className="col-md-3 mb-2">
+          <div className="col-md-4 mb-2">
             <label className="form-label">Behaviour</label>
             <select
               className="form-select"
               name="behaviour"
               value={formData.behaviour ? "Compulsory" : "Optional"}
               onChange={(e) =>
-                setFormData({ ...formData, behaviour: e.target.value === "Compulsory" })
+                setFormData({
+                  ...formData,
+                  behaviour: e.target.value === "Compulsory",
+                })
               }
             >
               <option>Compulsory</option>
@@ -167,11 +218,16 @@ function FeedbackTypeForm({ questions, setQuestions }) {
           </div>
         </div>
 
+        {/* Questions Section */}
         <h5 className="mt-4">Questions</h5>
         <button
           type="button"
           className="btn btn-primary mb-3"
-          onClick={() => navigate("/app/add-question")}
+          onClick={() =>
+            navigate("/app/add-question" + (isUpdate ? `/${id}` : ""), {
+              state: { formData, questions, isUpdate, id },
+            })
+          }
         >
           Add Questions
         </button>
@@ -179,8 +235,8 @@ function FeedbackTypeForm({ questions, setQuestions }) {
         <table className="table table-bordered">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Questions</th>
+              <th>#</th>
+              <th>Question</th>
               <th>Type</th>
               <th>Actions</th>
             </tr>
@@ -190,8 +246,8 @@ function FeedbackTypeForm({ questions, setQuestions }) {
               questions.map((q, index) => (
                 <tr key={index}>
                   <td>{index + 1}</td>
-                  <td>{q.text}</td>
-                  <td>{q.type}</td>
+                  <td>{q.question}</td>
+                  <td>{q.questionType}</td>
                   <td>
                     <button
                       type="button"
@@ -217,12 +273,11 @@ function FeedbackTypeForm({ questions, setQuestions }) {
 
         <div className="text-center mb-4">
           <button type="submit" className="btn btn-success">
-            Submit
+            {isUpdate ? "Update" : "Submit"}
           </button>
           <button
             type="button"
-            className="btn btn-danger"
-            style={{ marginLeft: 10 }}
+            className="btn btn-danger ms-2"
             onClick={() => navigate(-1)}
           >
             Cancel
