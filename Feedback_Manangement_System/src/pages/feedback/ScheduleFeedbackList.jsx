@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./Component.css";
 import Box from '@mui/material/Box';
 import { DataGrid} from '@mui/x-data-grid';
@@ -6,14 +6,45 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { Remove } from "@mui/icons-material";
-
+//import { Remove } from "@mui/icons-material";
+import Api from "../../services/api"; 
 export default function ScheduleFeedbackList() {
     const navigate = useNavigate();
+const [rows, setRows] = useState([]);
+
+useEffect(() => {
+    Api.get("Feedback/GetFeedback")
+      .then((res) => {
+        setRows(res.data);
+      })
+      .catch((err) => {
+        console.error("Error fetching feedback types:", err);
+      });
+  }, []);
+
+        const handleAddClick = () => {
+        navigate("/app/schedule-feedback-form"); 
+      };
+
+         const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this record?")) return;
+
+    try {
+      await axios.delete(`https://localhost:7056/api/Feedback/DeleteFeedback/${id}`);
+      setRows((prevRows) =>
+        prevRows.filter((row) => row.feedback_id !== id)
+      );
+      alert("Record deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting record:", error);
+      alert("Failed to delete record.");
+    }
+  };
+
    const columns= [
-  { field: 'id', headerName: 'ID', width: 50 },
+  { field: 'feedback_id', headerName: 'ID', width: 50 },
   {
-    field: 'course',
+    field: 'course_name',
     headerName: 'Course',
     flex:1,
     editable: true,
@@ -22,7 +53,7 @@ export default function ScheduleFeedbackList() {
     ),
   },
   {
-    field: 'module',
+    field: 'module_name',
     headerName: 'Module',
     flex:1,
     editable: true,
@@ -31,7 +62,7 @@ export default function ScheduleFeedbackList() {
     ),
   },
   {
-    field: 'type',
+    field: 'feedback_type_title',
     headerName: 'Type',
     flex:1,
     editable: true,
@@ -39,6 +70,16 @@ export default function ScheduleFeedbackList() {
       <span style={{ color: "black", fontWeight: "bold" }}>Type</span>
     ),
   },
+{
+    field: 'first_name',
+    headerName: 'staff',
+    flex:1,
+    editable: true,
+    renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>staff</span>
+    ),
+  },
+
   {
     field: 'session',
     headerName: 'Session',
@@ -49,12 +90,21 @@ export default function ScheduleFeedbackList() {
     ),
   },
   {
-    field: 'date',
-    headerName: 'Date',
+    field: 'start_date',
+    headerName: 'StartDate',
     flex:1,
     editable: true,
     renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>Date</span>
+      <span style={{ color: "black", fontWeight: "bold" }}>StartDate</span>
+    ),
+  },
+  {
+    field: 'end_date',
+    headerName: ' EndDate',
+    flex:1,
+    editable: true,
+    renderHeader: () => (
+      <span style={{ color: "black", fontWeight: "bold" }}>EndDate</span>
     ),
   },
   {
@@ -109,21 +159,21 @@ export default function ScheduleFeedbackList() {
     renderCell: () => (
       <>
         <Button color="primary" size="small"><EditIcon/></Button>
-        <Button color="error" size="small"><DeleteIcon/></Button>
-        <Button color="error" size="small"><Remove/></Button>
+         <Button
+            color="error"
+            size="small"
+            onClick={() => handleDelete(params.row.feedback_id)}
+          >
+            <DeleteIcon />
+          </Button>
+        
       </>
     )
   },
 ];
 
-const rows = [
-  { id: 1, course: 'PG-DAC',module: 'Dot Net', type: 'Module end',session: '3',date:'13/08/25',status:'Active', filledby:'2',remaining:'2'},
-   { id: 2, course: 'PG-DMC',module: 'Java', type: 'Module end',session: '6',date:'13/08/25',status:'inactive', filledby:'2',remaining:'2'},
-   
-];
-        const handleAddClick = () => {
-        navigate("/app/schedule-feedback-form"); 
-      };
+
+      
   return (
 
     <div  className="container">
@@ -159,6 +209,7 @@ const rows = [
       <DataGrid
         rows={rows}
         columns={columns}
+         getRowId={(row) => row.feedback_id}
         initialState={{
           pagination: {
             paginationModel: {
