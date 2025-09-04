@@ -1,21 +1,68 @@
-import React from 'react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import './Login.css'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
+import api from '../../services/api'   // ✅ axios instance
 
 function Forgot_Password() {
-    
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [confirmPassword, setConfirmPassword] = useState('')  
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [role, setRole] = useState('student')
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const navigate = useNavigate()
+
+  const handleUpdate = async () => {
+    // ✅ Frontend validation
+    if (!email || !password || !confirmPassword) {
+      setError('All fields are required!')
+      setSuccess('')
+      return
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match!')
+      setSuccess('')
+      return
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters!')
+      setSuccess('')
+      return
+    }
+
+    try {
+      setError('')
+      const response = await api.post('/Forgot-Password', {
+        email,
+        password,
+        role
+      })
+
+      if (response.data?.message) {
+        setSuccess(response.data.message) // "Password reset successful."
+        setTimeout(() => {
+          navigate('/') // redirect to login after success
+        }, 1500)
+      }
+    } catch (err) {
+      console.error(err)
+      setError('Password reset failed. Please try again.')
+      setSuccess('')
+    }
+  }
 
   return (
     <div className='container'>
       <h2 className='page-header text-center mt-3'>Forgot Password</h2>
       <div className='login-form'>
-       
+        {error && <div className='alert alert-danger'>{error}</div>}
+        {success && <div className='alert alert-success'>{success}</div>}
+
         <div className='mb-3'>
-          <label htmlFor=''>Email</label>
+          <label>Email</label>
           <input
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -23,44 +70,86 @@ function Forgot_Password() {
             className='form-control'
           />
         </div>
-        <div className='mb-3'>
-          <label htmlFor=''>Password</label>
-          <input
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            type='password'
-            className='form-control'
-          />
-        </div>
-        <div className='mb-3'>
-          <label htmlFor=''>Confirm Password</label>
-          <input
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            type='password'
-            className='form-control'
-          />
-        </div>
-        <div className='mb-3'>
-            <label>Role</label>
-            <select className='form-select'>
-            <option selected value="admin">Admin</option>
-            <option value="faculty">Faculty</option>
-            <option value="student">Student</option>
-            </select>
+
+        {/* Password */}
+        <div className='mb-3' style={{ position: "relative" }}>
+          <label>Password</label>
+          <div className="input-group">
+            <input
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              type={showPassword ? 'text' : 'password'}
+              className='form-control'
+            />
+            <span
+              
+              onClick={() => setShowPassword(!showPassword)}
+               style={{
+          position: "absolute",
+          right: "10px",
+          top: "6px",
+          cursor: "pointer"
+        }}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </span>
           </div>
+        </div>
+
+        {/* Confirm Password */}
+        <div className='mb-3' style={{ position: "relative" }}>
+          <label>Confirm Password</label>
+          <div className="input-group">
+            <input
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              type={showConfirmPassword ? 'text' : 'password'}
+              className='form-control'
+            />
+            <span
+              
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+               style={{
+          position: "absolute",
+          right: "10px",
+          top: "6px",
+          cursor: "pointer"
+        }}
+            >
+              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+            </span>
+          </div>
+        </div>
+
+        {/* Role */}
+        <div className='mb-3'>
+          <label>Role</label>
+          <select
+            className='form-select'
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+          >
+              <option selected value="student">Student</option>
+            <option value="admin">Admin</option>
+            <option value="staff">Faculty</option>
+           
+          </select>
+        </div>
+
         <div className='mb-3 text-center'>
           <div className='mb-3'>
             Already have an account yet? <Link to='/'>Login here</Link>
           </div>
           <button
             className='btn btn-success'
+            onClick={handleUpdate}
           >
             Update
           </button>
           <button
             className='btn btn-warning'
             style={{ marginLeft: 10 }}
+            onClick={() => navigate('/')}
           >
             Cancel
           </button>
