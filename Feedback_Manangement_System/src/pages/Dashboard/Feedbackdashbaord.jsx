@@ -139,7 +139,7 @@ function FeedbackDashboard() {
               <option value="">Select Faculty</option>
               {faculties.map((fac) => (
                 <option key={fac.faculty_id} value={fac.faculty_id}>
-                  {fac.faculty_name}
+                  {fac.first_name} {fac.last_name}
                 </option>
               ))}
             </select>
