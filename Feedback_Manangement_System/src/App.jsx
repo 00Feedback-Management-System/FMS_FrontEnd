@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { createContext, useEffect, useState } from 'react'
 import FeedbackTypeList from "./pages/feedback/FeedbackTypeList";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Outlet } from 'react-router-dom';
 import AddQuestionForm from "./pages/feedback/AddQuestionForm";
 import ScheduleFeedbackList from "./pages/feedback/ScheduleFeedbackList";
@@ -20,43 +20,69 @@ import StaffDashboard from './pages/Staff/StaffDashboard';
 import Coursewise_Report from './pages/Reports/Coursewise_Report';
 import Forgot_Password from './pages/Login/Forgot_Password';
 
+export const RoleContext = createContext();
+
 function App() {
   const [questions, setQuestions] = useState([]);
   const [groups, setGroups] = useState([
     { id: 1, groupName: "D1", staffName: "John Doe" },
     { id: 2, groupName: "D2", staffName: "Jane Smith" }
   ]);
+  const [role, setRole] = useState(null);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user?.role) {
+      setRole(user.role);
+    }
+  }, []);
+
+  const ProtectedRoute = ({ allowedRoles }) => {
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!user) return <Navigate to="/" replace />;
+    if (allowedRoles && !allowedRoles.includes(user.role))
+      return <Navigate to="/app/feedback-dashboard" replace />;
+
+    return <Outlet />;
+  };
+
   return (
     <div>
       {/* <DashboardLayout/> */}
-      <Router>
-        <Routes>
-  <Route path="/" element={<Login />} />
-  <Route path="/forgot-password" element={<Forgot_Password />} />
-  
-  <Route path="/app" element={<Home />}>
-    <Route path="feedback-type-list" element={<FeedbackTypeList />} />
-    <Route path="feedback-type-form" element={<FeedbackTypeForm />} />               {/* Create */}
-    <Route path="feedback-type-form/:id" element={<FeedbackTypeForm />} />           {/* Update */}
-    <Route path="add-question" element={<AddQuestionForm />} />                      {/* Create */}
-    <Route path="add-question/:id" element={<AddQuestionForm />} />                  {/* Update */}
-    
-    {/* Other routes */}
-    <Route path="schedule-feedback-list" element={<ScheduleFeedbackList />} />
-    <Route path="student-list/:scheduleId" element={<StudentList />} />
-    <Route path="remaining/:scheduleId" element={<RemainingStudent />} />
-    <Route path="edit-group/:id" element={<EditGroup groups={groups} setGroups={setGroups} />} />
-    <Route path="schedule-feedback-form" element={<ScheduleFeedbackForm groups={groups} setGroups={setGroups} />} />
-    <Route path="student-feedback-form" element={<StudentFeedbackForm />} />
-    <Route path="per-faculty-feedback-summary" element={<FacultyFeedbackSummary />} />
-    <Route path="feedback-dashboard" element={<FeedbackDashboard />} />
-    <Route path="faculty-feedback-summary" element={<Faculty_Feedback_summary />} />
-    <Route path="staff-dashboard" element={<StaffDashboard />} />
-    <Route path="coursewise-report" element={<Coursewise_Report />} />
-  </Route>
-</Routes>
+      <RoleContext.Provider value={{ role, setRole }} >
+        <Router>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/forgot-password" element={<Forgot_Password />} />
 
-      </Router>
+            <Route path="/app" element={<Home />}>
+              <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
+                <Route path="feedback-type-list" element={<FeedbackTypeList />} />
+                <Route path="feedback-type-form" element={<FeedbackTypeForm />} />               {/* Create */}
+                <Route path="feedback-type-form/:id" element={<FeedbackTypeForm />} />           {/* Update */}
+                <Route path="add-question" element={<AddQuestionForm />} />                      {/* Create */}
+                <Route path="add-question/:id" element={<AddQuestionForm />} />                  {/* Update */}
+                <Route path="schedule-feedback-list" element={<ScheduleFeedbackList />} />
+                <Route path="student-list/:scheduleId" element={<StudentList />} />
+                <Route path="remaining/:scheduleId" element={<RemainingStudent />} />
+                <Route path="edit-group/:id" element={<EditGroup groups={groups} setGroups={setGroups} />} />
+                <Route path="schedule-feedback-form" element={<ScheduleFeedbackForm groups={groups} setGroups={setGroups} />} />
+                <Route path="per-faculty-feedback-summary" element={<FacultyFeedbackSummary />} />
+                <Route path="feedback-dashboard" element={<FeedbackDashboard />} />
+                <Route path="faculty-feedback-summary" element={<Faculty_Feedback_summary />} />
+                <Route path="coursewise-report" element={<Coursewise_Report />} />
+              </Route>
+              <Route element={<ProtectedRoute allowedRoles={["student"]}/>}>
+                <Route path="student-feedback-form" element={<StudentFeedbackForm />} />
+              </Route>
+              <Route element={<ProtectedRoute allowedRoles={["Trainer"]}/>}>
+                <Route path="staff-dashboard" element={<StaffDashboard />} />
+              </Route>
+            </Route>
+          </Routes>
+        </Router>
+      </RoleContext.Provider>
     </div>
   );
 }
