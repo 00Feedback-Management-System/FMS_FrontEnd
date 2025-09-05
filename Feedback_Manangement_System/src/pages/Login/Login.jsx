@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import './Login.css'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../../services/api'
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { RoleContext } from '../../App';
 
 function Login() {
+  const { setRole } = useContext(RoleContext);
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [role, setRole] = useState('student')
+  const [role, setLoginRole] = useState('student')
   const [remember, setRemember] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
@@ -22,7 +24,7 @@ function Login() {
     if (savedEmail && savedPassword) {
       setEmail(savedEmail)
       setPassword(savedPassword)
-      setRole(savedRole )
+      setLoginRole(savedRole )
       setRemember(true)
     }
   }, [])
@@ -32,10 +34,18 @@ function Login() {
       const response = await api.post('Login', {
         email,
         password,
-        role
+        role: role.toLowerCase()
       })
 
       if (response.data && response.data.message === "Login successful.") {
+        const user = response.data?.users || response.data?.user;
+        console.log("User", user);
+        if(!user)
+        {
+          setError("User data not found.");
+          return;
+        }
+        setRole(user.role.toLowerCase());
         // ✅ If remember me checked → save credentials
         if (remember) {
           localStorage.setItem("rememberEmail", email)
@@ -49,10 +59,17 @@ function Login() {
         }
 
         // ✅ Save user info in localStorage (for session)
-        localStorage.setItem("user", JSON.stringify(response.data.user))
+        localStorage.setItem("user", JSON.stringify(user))
 
-        // Redirect to /app
-        navigate("/app/feedback-dashboard")
+        if (user.role.toLowerCase() === "admin") {
+          navigate("/app/feedback-dashboard")
+        } else if (user.role.toLowerCase() === "trainer" || user.role.toLowerCase() === "staff") {
+          navigate("/app/staff-dashboard")
+        } else if (user.role.toLowerCase() === "student") {
+          navigate("/app/student-feedback-form")
+        } else {
+          navigate("/app") 
+        }
       } else {
         setError("Invalid login details.")
       }
@@ -110,9 +127,9 @@ function Login() {
             <select
               className='form-select'
               value={role}
-              onChange={(e) => setRole(e.target.value)}
+              onChange={(e) => setLoginRole(e.target.value)}
             >
-              <option selected value="student">Student</option>
+              <option value="student">Student</option>
               <option value="admin">Admin</option>
               <option value="staff">Faculty</option>
               
