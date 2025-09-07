@@ -19,6 +19,8 @@ import Home from './pages/Home/Home';
 import StaffDashboard from './pages/Staff/StaffDashboard';
 import Coursewise_Report from './pages/Reports/Coursewise_Report';
 import Forgot_Password from './pages/Login/Forgot_Password';
+import StudentPendingFeedbackList from './pages/Student/StudentPendingFeedbackList';
+import StudentFeedbackHistoryList from './pages/Student/StudentFeedbackHistoryList';
 
 export const RoleContext = createContext();
 
@@ -74,7 +76,8 @@ function App() {
                 <Route path="coursewise-report" element={<Coursewise_Report />} />
               </Route>
               <Route element={<ProtectedRoute allowedRoles={["student"]}/>}>
-                <Route path="student-feedback-form" element={<StudentFeedbackForm />} />
+                <Route path="student-pending-feedbacklist" element={<StudentPendingFeedbackList />} />
+                <Route path="student-feedback-history" element={<StudentFeedbackHistoryList />} />
               </Route>
               <Route element={<ProtectedRoute allowedRoles={["Trainer"]}/>}>
                 <Route path="staff-dashboard" element={<StaffDashboard />} />
