@@ -66,7 +66,7 @@ function Login() {
         } else if (user.role.toLowerCase() === "trainer" || user.role.toLowerCase() === "staff") {
           navigate("/app/staff-dashboard")
         } else if (user.role.toLowerCase() === "student") {
-          navigate("/app/student-feedback-form")
+          navigate("/app/student-pending-feedbacklist")
         } else {
           navigate("/app") 
         }

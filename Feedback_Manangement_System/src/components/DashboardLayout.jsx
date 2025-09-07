@@ -83,9 +83,9 @@ function DashboardLayout() {
                                 </ListItemButton>
                                 <Collapse in={openReports}>
                                     <List >
-                                        <ListItem button onClick={() => navigate("/app/coursewise-report")} sx={{ pl: 8 }}>
+                                        <ListItemButton onClick={() => navigate("/app/coursewise-report")} sx={{ pl: 8 }}>
                                             Coursewise Report
-                                        </ListItem>
+                                        </ListItemButton>
                                         {/* <ListItem button onClick={() => navigate("/app/staff-dashboard")} sx={{ pl: 8 }}>
                                             Staff Report
                                         </ListItem> */}
@@ -120,8 +120,7 @@ function DashboardLayout() {
 
                         {currentRole?.toLowerCase() === "student" && (
                             <>
-                                <ListItem
-                                    button
+                                <ListItemButton
                                     onClick={() => setOpenStudentFeedback(!openStudentFeedback)}
                                 >
                                     <ListItemIcon>
@@ -129,23 +128,21 @@ function DashboardLayout() {
                                     </ListItemIcon>
                                     Feedback
                                     {openStudentFeedback ? <ExpandLess /> : <ExpandMore />}
-                                </ListItem>
+                                </ListItemButton>
                                 <Collapse in={openStudentFeedback}>
                                     <List>
-                                        <ListItem
-                                            button
-                                            onClick={() => navigate("/app/student-feedback-form")}
+                                        <ListItemButton
+                                            onClick={() => navigate("/app/student-pending-feedbacklist")}
                                             sx={{ pl: 8 }}
                                         >
                                             Pending
-                                        </ListItem>
-                                        <ListItem
-                                            button
+                                        </ListItemButton>
+                                        <ListItemButton
                                             onClick={() => navigate("/app/student-feedback-history")}
                                             sx={{ pl: 8 }}
                                         >
                                             History
-                                        </ListItem>
+                                        </ListItemButton>
                                     </List>
                                 </Collapse>
                             </>
@@ -154,12 +151,12 @@ function DashboardLayout() {
                 </Box>
                 <Box>
                     <List>
-                        <ListItem button onClick={handleLogout}>
+                        <ListItemButton onClick={handleLogout}>
                             <ListItemIcon>
                                 <LogoutIcon />
                             </ListItemIcon>
                             Logout
-                        </ListItem>
+                        </ListItemButton>
                     </List>
                 </Box>
             </Drawer>
