@@ -8,6 +8,7 @@ import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 //import { Remove } from "@mui/icons-material";
 import Api from "../../services/api"; 
+import axios from "axios"; 
 export default function ScheduleFeedbackList() {
     const navigate = useNavigate();
 const [rows, setRows] = useState([]);
@@ -26,13 +27,17 @@ useEffect(() => {
         navigate("/app/schedule-feedback-form"); 
       };
 
+      const handleEdit = (id) => {
+    navigate(`/app/schedule-feedback-form/${id}`);
+  };
+
          const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this record?")) return;
 
     try {
       await axios.delete(`https://localhost:7056/api/Feedback/DeleteFeedback/${id}`);
       setRows((prevRows) =>
-        prevRows.filter((row) => row.feedback_id !== id)
+        prevRows.filter((row) => row.feedbackId  !== id)
       );
       alert("Record deleted successfully!");
     } catch (error) {
@@ -42,7 +47,7 @@ useEffect(() => {
   };
 
    const columns= [
-  { field: 'feedback_id', headerName: 'ID', width: 50 },
+  { field: 'feedbackId', headerName: 'ID', width: 50 },
   {
     field: 'course_name',
     headerName: 'Course',
@@ -71,14 +76,19 @@ useEffect(() => {
     ),
   },
 {
-    field: 'first_name',
-    headerName: 'staff',
-    flex:1,
-    editable: true,
-    renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>staff</span>
-    ),
-  },
+  field: 'staff',
+  headerName: 'Staff',
+  flex: 1,
+  renderHeader: () => (
+    <span style={{ color: "black", fontWeight: "bold" }}>Staff</span>
+  ),
+  renderCell: (params) => (
+    <span>
+      {params.row.groups?.map(g => g.first_name).join(", ")}
+    </span>
+  )
+},
+
 
   {
     field: 'session',
@@ -156,13 +166,19 @@ useEffect(() => {
     renderHeader: () => (
       <span style={{ color: "black", fontWeight: "bold" }}>Action</span>
     ),
-    renderCell: () => (
+    renderCell: (params) => (
       <>
-        <Button color="primary" size="small"><EditIcon/></Button>
+        <Button
+            color="primary"
+            size="small"
+            onClick={() => handleEdit(params.row.feedbackId)}
+          >
+            <EditIcon />
+          </Button>
          <Button
             color="error"
             size="small"
-            onClick={() => handleDelete(params.row.feedback_id)}
+            onClick={() => handleDelete(params.row.feedbackId)}
           >
             <DeleteIcon />
           </Button>
@@ -209,7 +225,7 @@ useEffect(() => {
       <DataGrid
         rows={rows}
         columns={columns}
-         getRowId={(row) => row.feedback_id}
+         getRowId={(row) => row.feedbackId}
         initialState={{
           pagination: {
             paginationModel: {

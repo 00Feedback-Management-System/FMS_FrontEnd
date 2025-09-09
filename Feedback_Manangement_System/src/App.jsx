@@ -69,7 +69,8 @@ function App() {
                 <Route path="student-list/:scheduleId" element={<StudentList />} />
                 <Route path="remaining/:scheduleId" element={<RemainingStudent />} />
                 <Route path="edit-group/:id" element={<EditGroup groups={groups} setGroups={setGroups} />} />
-                <Route path="schedule-feedback-form" element={<ScheduleFeedbackForm groups={groups} setGroups={setGroups} />} />
+                <Route path="schedule-feedback-form" element={<ScheduleFeedbackForm />} />
+                <Route path="schedule-feedback-form/:id" element={<ScheduleFeedbackForm groups={groups} setGroups={setGroups} />} />
                 <Route path="per-faculty-feedback-summary" element={<FacultyFeedbackSummary />} />
                 <Route path="feedback-dashboard" element={<FeedbackDashboard />} />
                 <Route path="faculty-feedback-summary" element={<Faculty_Feedback_summary />} />
