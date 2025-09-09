@@ -43,18 +43,25 @@ export default function FeedbackTypeList() {
     navigate(`/app/feedback-type-form/${id}`);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this feedback type?")) {
-      try {
-        await Api.delete(`FeedbackType/${id}`);
-        alert("Feedback type deleted successfully!");
-        fetchFeedbackTypes();
-      } catch (err) {
-        console.error("Error deleting feedback type:", err);
-        alert("Failed to delete feedback type.");
+ const handleDelete = async (id) => {
+  if (window.confirm("Are you sure you want to delete this feedback type?")) {
+    try {
+      await Api.delete(`FeedbackType/${id}`);
+      alert("Feedback type deleted successfully!");
+      fetchFeedbackTypes();
+    } catch (err) {
+      console.error("Error deleting feedback type:", err);
+
+      // ✅ Extract backend error message if available
+      if (err.response && err.response.data && err.response.data.message) {
+        alert(err.response.data.message);
+      } else {
+        alert("Failed to delete feedback type. Please try again.");
       }
     }
-  };
+  }
+};
+
 
   const columns = [
     { field: "feedback_type_id", headerName: "ID", width: 50 },
