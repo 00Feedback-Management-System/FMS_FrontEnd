@@ -1,19 +1,23 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { getCourses } from "../../services/course";
 import { getModules } from "../../services/Module";
 import { getStaff } from "../../services/staff";
 import Api from "../../services/api";
 
-function ScheduleFeedbackForm({ groups = [], setGroups }) {
+function ScheduleFeedbackForm({ groups: initialGroups = [] }) {
   const { id } = useParams(); // 👈 get feedbackId from URL
   const [courses, setCourses] = useState([]);
   const [modules, setModules] = useState([]);
   const [faculties, setFaculties] = useState([]);
   const [feedbackTypes, setFeedbackTypes] = useState([]);
   const [selectedFeedbackType, setSelectedFeedbackType] = useState(null);
-
+  const [groups, setGroups] = useState(initialGroups);
+  const [courseId, setCourseId] = useState("");
+  console.log("courseIdForm", courseId);
+  
+  
   const [formData, setFormData] = useState({
     start_date: "",
     end_date: "",
@@ -25,6 +29,27 @@ function ScheduleFeedbackForm({ groups = [], setGroups }) {
   });
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if(location.state?.groups)
+    {
+      setGroups(location.state.groups);
+    }
+
+    if (location.state?.formData) {
+      setFormData(location.state.formData);
+    }
+
+    if(location.state?.selectedFeedbackType) {
+      setSelectedFeedbackType(location.state.selectedFeedbackType);
+    }
+
+    if(location.state?.CourseId)
+    {
+      setCourseId(location.state.courseId);
+    }
+  }, [location.state]);
 
   // Load dropdowns
   useEffect(() => {
@@ -98,9 +123,9 @@ function ScheduleFeedbackForm({ groups = [], setGroups }) {
   };
 
   // Handlers
+  // 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleTypeChange = (e) => {
@@ -115,7 +140,13 @@ function ScheduleFeedbackForm({ groups = [], setGroups }) {
   };
 
   const addGroup = () => {
-    navigate("/app/edit-group/:id");
+    navigate("/app/edit-group/new", 
+      {state: {
+        groups,
+        courseId,
+        isAddMode: true
+      } 
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -133,6 +164,10 @@ function ScheduleFeedbackForm({ groups = [], setGroups }) {
       console.error("Error saving feedback:", error);
       alert("Failed to save feedback.");
     }
+  };
+
+  const handleCourseChange = (e) => {
+    setCourseId(e.target.value);
   };
 
   return (
@@ -195,7 +230,7 @@ function ScheduleFeedbackForm({ groups = [], setGroups }) {
               name="course_id"
               className="form-select"
               value={formData.course_id}
-              onChange={handleChange}
+              onChange={handleCourseChange}
               required
             >
               <option value="">Select Course</option>
@@ -295,7 +330,13 @@ function ScheduleFeedbackForm({ groups = [], setGroups }) {
                         type="button"
                         className="btn btn-warning btn-sm me-2"
                         onClick={() =>
-                          navigate(`/app/edit-group/${group.id}`)
+                          navigate(`/app/edit-group/${group.id}`, 
+                            {state: {
+                              groups,
+                              selectedFeedbackType,
+                              courseId
+                            }
+                          })
                         }
                       >
                         Edit
