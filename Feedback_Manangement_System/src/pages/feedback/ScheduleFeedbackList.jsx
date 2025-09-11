@@ -1,43 +1,42 @@
 import React, { useState, useEffect } from "react";
 import "./Component.css";
-import Box from '@mui/material/Box';
-import { DataGrid} from '@mui/x-data-grid';
+import Box from "@mui/material/Box";
+import { DataGrid } from "@mui/x-data-grid";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-//import { Remove } from "@mui/icons-material";
-import Api from "../../services/api"; 
-import axios from "axios"; 
-export default function ScheduleFeedbackList() {
-    const navigate = useNavigate();
-const [rows, setRows] = useState([]);
+import axios from "axios";
+import Api from "../../services/api";
 
-useEffect(() => {
+export default function ScheduleFeedbackList() {
+  const navigate = useNavigate();
+  const [rows, setRows] = useState([]);
+
+  useEffect(() => {
     Api.get("Feedback/GetFeedback")
       .then((res) => {
         setRows(res.data);
       })
       .catch((err) => {
-        console.error("Error fetching feedback types:", err);
+        console.error("Error fetching feedback:", err);
       });
   }, []);
 
-        const handleAddClick = () => {
-        navigate("/app/schedule-feedback-form"); 
-      };
-
-      const handleEdit = (id) => {
-    navigate(`/app/schedule-feedback-form/${id}`);
+  const handleAddClick = () => {
+    navigate("/app/schedule-feedback-form");
   };
 
-         const handleDelete = async (id) => {
+  // ✅ Delete by feedbackGroupId (unique per row)
+  const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this record?")) return;
 
     try {
-      await axios.delete(`https://localhost:7056/api/Feedback/DeleteFeedback/${id}`);
+      await axios.delete(
+        `https://localhost:7056/api/Feedback/DeleteFeedback/${id}`
+      );
       setRows((prevRows) =>
-        prevRows.filter((row) => row.feedbackId  !== id)
+        prevRows.filter((row) => row.feedbackGroupId !== id)
       );
       alert("Record deleted successfully!");
     } catch (error) {
@@ -46,157 +45,105 @@ useEffect(() => {
     }
   };
 
-   const columns= [
-  { field: 'feedbackId', headerName: 'ID', width: 50 },
-  {
-    field: 'course_name',
-    headerName: 'Course',
-    flex:1,
-    editable: true,
-    renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>Course</span>
-    ),
-  },
-  {
-    field: 'module_name',
-    headerName: 'Module',
-    flex:1,
-    editable: true,
-    renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>Module</span>
-    ),
-  },
-  {
-    field: 'feedback_type_title',
-    headerName: 'Type',
-    flex:1,
-    editable: true,
-    renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>Type</span>
-    ),
-  },
-{
-  field: 'staff',
-  headerName: 'Staff',
-  flex: 1,
-  renderHeader: () => (
-    <span style={{ color: "black", fontWeight: "bold" }}>Staff</span>
-  ),
-  renderCell: (params) => (
-    <span>
-      {params.row.groups?.map(g => g.first_name).join(", ")}
-    </span>
-  )
-},
+  // ✅ Safe date formatter
+  const formatDate = (value) => {
+    if (!value) return "-"; // null/empty
+    const date = new Date(value);
+    if (isNaN(date.getTime())) return "-"; // invalid date
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
 
-
-  {
-    field: 'session',
-    headerName: 'Session',
-    sortable: false,
-    flex:1,
-    renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>Session</span>
-    ),
-  },
-  {
-    field: 'start_date',
-    headerName: 'StartDate',
-    flex:1,
-    editable: true,
-    renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>StartDate</span>
-    ),
-  },
-  {
-    field: 'end_date',
-    headerName: ' EndDate',
-    flex:1,
-    editable: true,
-    renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>EndDate</span>
-    ),
-  },
-  {
-    field: 'status',
-    headerName: 'Status',
-    flex:1,
-    editable: true,
-    renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>Status</span>
-    ),
-  },
-  {
-    field: 'filledby',
-    headerName: 'FilledBy',
-    flex:1,
-    renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>FilledBy</span>
-    ),
-    renderCell: (params) => (
-      <a
-        href={`student-list/${params.row.id}`}
-        style={{ color: 'blue', textDecoration: 'underline' }}
-      >
-        {params.value}
-      </a>
-    ),
-  },
-  {
-    field: 'remaining',
-    headerName: 'Remaining',
-    flex:1,
-    editable: true,
-    renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>Remaining</span>
-    ),
-    renderCell: (params) => (
-      <a
-        href={`remaining/${params.row.id}`}
-        style={{ color: 'blue', textDecoration: 'underline' }}
-      >
-        {params.value}
-      </a>
-    ),
-  },
-  {
-    field: "actions",
-    headerName: "Action",
-    flex: 2,
-    renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>Action</span>
-    ),
-    renderCell: (params) => (
-      <>
-        <Button
-            color="primary"
-            size="small"
-            onClick={() => handleEdit(params.row.feedbackId)}
-          >
+  const columns = [
+    { field: "feedbackId", headerName: "Feedback ID", width: 100 },
+    { field: "courseName", headerName: "Course", flex: 1 },
+    { field: "moduleName", headerName: "Module", flex: 1 },
+    { field: "feedbackTypeName", headerName: "Type", flex: 1 },
+    { field: "staffName", headerName: "Staff", flex: 1 },
+    {
+      field: "groupName",
+      headerName: "Group",
+      flex: 1,
+      renderCell: (params) =>
+        params.value && params.value.trim() !== "" ? params.value : "-",
+    },
+    { field: "session", headerName: "Session", flex: 1 },
+    {
+      field: "startDate",
+      headerName: "Start Date",
+      flex: 1,
+      renderCell: (params) => formatDate(params.value),
+    },
+    {
+      field: "endDate",
+      headerName: "End Date",
+      flex: 1,
+      renderCell: (params) => formatDate(params.value),
+    },
+    {
+      field: "filledby",
+      headerName: "FilledBy",
+      flex: 1,
+      renderHeader: () => (
+        <span style={{ color: "black", fontWeight: "bold" }}>FilledBy</span>
+      ),
+      renderCell: (params) => (
+        <a
+          href={`student-list/${params.row.feedbackGroupId}`}
+          style={{ color: "blue", textDecoration: "underline" }}
+        >
+          {params.value}
+        </a>
+      ),
+    },
+    {
+      field: "remaining",
+      headerName: "Remaining",
+      flex: 1,
+      renderHeader: () => (
+        <span style={{ color: "black", fontWeight: "bold" }}>Remaining</span>
+      ),
+      renderCell: (params) => (
+        <a
+          href={`remaining/${params.row.feedbackGroupId}`}
+          style={{ color: "blue", textDecoration: "underline" }}
+        >
+          {params.value}
+        </a>
+      ),
+    },
+    { field: "status", headerName: "Status", flex: 1 },
+    {
+      field: "actions",
+      headerName: "Action",
+      flex: 1,
+      renderCell: (params) => (
+        <>
+          <Button color="primary" size="small">
             <EditIcon />
           </Button>
-         <Button
+          <Button
             color="error"
             size="small"
-            onClick={() => handleDelete(params.row.feedbackId)}
+            onClick={() => handleDelete(params.row.feedbackGroupId)}
           >
             <DeleteIcon />
           </Button>
-        
-      </>
-    )
-  },
-];
+        </>
+      ),
+    },
+  ];
 
-
-      
   return (
+    <div className="container">
+      <h2 className="table-header text-center mt-3">
+        Schedule Feedback List
+      </h2>
 
-    <div  className="container">
-    
-        <h2 className="table-header text-center mt-3" >Schedule Feedback List</h2>
-        
-         <Box
+      <Box
         sx={{
           display: "flex",
           justifyContent: "center",
@@ -206,39 +153,28 @@ useEffect(() => {
           borderRadius: 1,
         }}
       >
-        {/* <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-          Feedback Type List
-        </Typography> */}
-
-        <Button variant="outlined" color="primary" 
-         sx={{
-            position: "absolute",
-            right: 50, 
-          }}
-          onClick={handleAddClick} 
-            >
-          Schedule Feddback
+        <Button
+          variant="outlined"
+          color="primary"
+          sx={{ position: "absolute", right: 50 }}
+          onClick={handleAddClick}
+        >
+          Schedule Feedback
         </Button>
       </Box>
 
-        <Box sx={{ height: 400, width: '100%' }}>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-         getRowId={(row) => row.feedbackId}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5,
-              
-            },
-          },
-        }}
-        pageSizeOptions={[5,10,20]}
-        disableRowSelectionOnClick
-      />
-    </Box>
+      <Box sx={{ height: 500, width: "100%" }}>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={(row) => row.feedbackGroupId} // ✅ unique id
+          initialState={{
+            pagination: { paginationModel: { pageSize: 5 } },
+          }}
+          pageSizeOptions={[5, 10, 20]}
+          disableRowSelectionOnClick
+        />
+      </Box>
     </div>
-    
   );
 }
