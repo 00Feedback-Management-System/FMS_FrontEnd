@@ -65,9 +65,7 @@ function App() {
                 <Route path="schedule-feedback-list" element={<ScheduleFeedbackList />} />
                 <Route path="student-list/:scheduleId" element={<StudentList />} />
                 <Route path="remaining/:scheduleId" element={<RemainingStudent />} />
-            
                 <Route path="schedule-feedback-form" element={<ScheduleFeedbackForm />} />
-            
                 <Route path="per-faculty-feedback-summary" element={<FacultyFeedbackSummary />} />
                 <Route path="feedback-dashboard" element={<FeedbackDashboard />} />
                 <Route path="faculty-feedback-summary" element={<Faculty_Feedback_summary />} />
