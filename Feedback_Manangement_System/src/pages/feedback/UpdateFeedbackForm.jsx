@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCourses } from "../../services/course";
-import { getModules } from "../../services/Module";
 import { getStaff } from "../../services/staff";
 import Api from "../../services/api";
 
@@ -15,7 +14,7 @@ function UpdateFeedbackForm() {
   const [faculties, setFaculties] = useState([]);
   const [feedbackTypes, setFeedbackTypes] = useState([]);
   const [groups, setGroups] = useState([]);
-  const [groupType, setGroupType] = useState(""); // ✅ track group type
+  const [groupType, setGroupType] = useState(""); // "single" | "multiple"
 
   const [formData, setFormData] = useState({
     startDate: "",
@@ -29,9 +28,8 @@ function UpdateFeedbackForm() {
 
   useEffect(() => {
     fetchCourses();
-    fetchModules();
     fetchFaculties();
-    fetchFeedbackDetails(); // ✅ this will also trigger fetchFeedbackTypes()
+    fetchFeedbackDetails(); // will also fetch feedback types for detected groupType
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -44,12 +42,21 @@ function UpdateFeedbackForm() {
     }
   };
 
-  const fetchModules = async () => {
+  // fetch modules for a specific course and set modules state
+  const fetchModulesByCourse = async (courseId) => {
     try {
-      const data = await getModules();
-      setModules(data || []);
+      if (!courseId) {
+        setModules([]);
+        return [];
+      }
+      const response = await Api.get(`Modules/ByCourse/${courseId}`);
+      const data = response.data || [];
+      setModules(data);
+      return data;
     } catch (error) {
-      console.error("Failed to load modules:", error);
+      console.error("Failed to load modules by course:", error);
+      setModules([]);
+      return [];
     }
   };
 
@@ -72,19 +79,16 @@ function UpdateFeedbackForm() {
     }
   };
 
-const isoDateForInput = (dateString) => {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-
-  if (isNaN(date.getTime())) return "";
-
-  // ✅ format as YYYY-MM-DD in local time
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-};
+  // Parse backend datetime string like "2025-09-13T00:00:00"
+  // and return YYYY-MM-DD WITHOUT applying timezone shifts (preserve date)
+  const isoDateForInput = (dateString) => {
+    if (!dateString) return "";
+    // match components to avoid timezone conversions
+    const m = String(dateString).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return "";
+    const year = m[1], month = m[2], day = m[3];
+    return `${year}-${month}-${day}`; // format for <input type="date" />
+  };
 
   // --- Fetch existing feedback details and populate form
   const fetchFeedbackDetails = async () => {
@@ -92,17 +96,27 @@ const isoDateForInput = (dateString) => {
       const response = await Api.get(`Feedback/GetByFeedback/${feedbackId}`);
       const feedback = response.data;
 
-      // ✅ detect group type
+      if (!feedback) return;
+
+      // detect group type
       const detectedGroupType =
         feedback.feedbackGroups && feedback.feedbackGroups.length > 1
           ? "multiple"
           : "single";
       setGroupType(detectedGroupType);
 
-      // ✅ fetch feedback types based on groupType
-      fetchFeedbackTypes(detectedGroupType);
+      // fetch feedback types based on groupType
+      await fetchFeedbackTypes(detectedGroupType);
 
-      // determine staff id
+      // Ensure modules for the course are loaded BEFORE setting moduleId default
+      let modulesForCourse = [];
+      if (feedback.courseId) {
+        modulesForCourse = await fetchModulesByCourse(feedback.courseId);
+      } else {
+        setModules([]);
+      }
+
+      // determine staff id (top-level staffId or from first group)
       const staffFromTop = feedback.staffId ?? null;
       const staffFromGroups =
         feedback.feedbackGroups && feedback.feedbackGroups.length > 0
@@ -110,6 +124,7 @@ const isoDateForInput = (dateString) => {
           : null;
       const staffIdToUse = staffFromTop ?? staffFromGroups;
 
+      // set formData AFTER modules have been populated (so select options exist)
       setFormData({
         startDate: isoDateForInput(feedback.startDate),
         endDate: isoDateForInput(feedback.endDate),
@@ -121,6 +136,7 @@ const isoDateForInput = (dateString) => {
         session: feedback.session ?? 0,
       });
 
+      // map feedbackGroups (if any) to include friendly group name and staff string
       if (feedback.feedbackGroups && feedback.feedbackGroups.length > 0) {
         const courseGroups = await fetchGroupsByCourse(feedback.courseId);
 
@@ -133,8 +149,7 @@ const isoDateForInput = (dateString) => {
             feedbackGroupId: fg.feedbackGroupId,
             groupId: fg.groupId ?? null,
             groupName:
-              groupInfo?.group_name ??
-              (fg.groupId == null ? "-" : `Group ${fg.groupId}`),
+              groupInfo?.group_name ?? (fg.groupId == null ? "-" : `Group ${fg.groupId}`),
             staffId: fg.staffId != null ? String(fg.staffId) : "",
           };
         });
@@ -148,9 +163,13 @@ const isoDateForInput = (dateString) => {
     }
   };
 
-  // ✅ fetch feedback types by groupType
+  // fetch feedback types by groupType ("single" or "multiple")
   const fetchFeedbackTypes = async (type) => {
     try {
+      if (!type) {
+        setFeedbackTypes([]);
+        return;
+      }
       const response = await Api.get(`FeedbackType/ByGroup/${type}`);
       setFeedbackTypes(response.data || []);
     } catch (error) {
@@ -158,11 +177,10 @@ const isoDateForInput = (dateString) => {
     }
   };
 
+  // keep staffId valid when faculties arrive
   useEffect(() => {
     if (faculties.length > 0 && formData.staffId) {
-      const exists = faculties.some(
-        (f) => String(f.staff_id) === formData.staffId
-      );
+      const exists = faculties.some((f) => String(f.staff_id) === formData.staffId);
       if (!exists) {
         setFormData((p) => ({ ...p, staffId: "" }));
       }
@@ -176,24 +194,26 @@ const isoDateForInput = (dateString) => {
 
   const handleStaffSelect = (groupId, staffId) => {
     setGroups((prev) =>
-      prev.map((g) =>
-        g.groupId === groupId ? { ...g, staffId: String(staffId) } : g
-      )
+      prev.map((g) => (g.groupId === groupId ? { ...g, staffId: String(staffId) } : g))
     );
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validate date order
+    if (new Date(formData.startDate) > new Date(formData.endDate)) {
+      alert("Start Date cannot be greater than End Date!");
+      return;
+    }
+
     const selectedFeedbackType = feedbackTypes.find(
       (t) => String(t.feedbackTypeId) === formData.feedbackTypeId
     );
 
-    if (groupType === "multiple") {
-      if (groups.some((g) => !g.staffId)) {
-        alert("Please select staff for all groups before submitting.");
-        return;
-      }
+    if (groupType === "multiple" && groups.some((g) => !g.staffId)) {
+      alert("Please select staff for all groups before submitting.");
+      return;
     }
 
     const payload = {
@@ -226,11 +246,7 @@ const isoDateForInput = (dateString) => {
     }
   };
 
-  const selectedFeedbackType = feedbackTypes.find(
-    (t) => String(t.feedbackTypeId) === formData.feedbackTypeId
-  );
-
-   // 🔹 Collect all staff already selected in groups
+  // Collect all staff already selected in groups (to hide in other selects)
   const selectedStaffIds = groups.map((g) => g.staffId).filter(Boolean);
 
   return (
@@ -285,12 +301,7 @@ const isoDateForInput = (dateString) => {
 
           <div className="col-md-6">
             <label className="form-label">Course:</label>
-            <select
-              name="courseId"
-              className="form-select"
-              value={formData.courseId || ""}
-              disabled
-            >
+            <select name="courseId" className="form-select" value={formData.courseId || ""} disabled>
               {courses.map((course) => (
                 <option key={course.course_id} value={String(course.course_id)}>
                   {course.course_name}
@@ -375,24 +386,21 @@ const isoDateForInput = (dateString) => {
                       <select
                         className="form-select"
                         value={group.staffId || ""}
-                        onChange={(e) =>
-                          handleStaffSelect(group.groupId, e.target.value)
-                        }
+                        onChange={(e) => handleStaffSelect(group.groupId, e.target.value)}
                         required
                       >
                         <option value="">Select Staff</option>
                         {faculties
-                        .filter(
+                          .filter(
                             (fac) =>
                               !selectedStaffIds.includes(String(fac.staff_id)) ||
                               String(fac.staff_id) === group.staffId
                           )
-                        .map((fac) => (
-                            
-                          <option key={fac.staff_id} value={String(fac.staff_id)}>
-                            {fac.first_name} {fac.last_name}
-                          </option>
-                        ))}
+                          .map((fac) => (
+                            <option key={fac.staff_id} value={String(fac.staff_id)}>
+                              {fac.first_name} {fac.last_name}
+                            </option>
+                          ))}
                       </select>
                     </td>
                   </tr>
@@ -413,11 +421,7 @@ const isoDateForInput = (dateString) => {
           <button type="submit" className="btn btn-primary me-3">
             UPDATE
           </button>
-          <button
-            type="button"
-            onClick={() => navigate("/app/schedule-feedback-list")}
-            className="btn btn-danger"
-          >
+          <button type="button" onClick={() => navigate("/app/schedule-feedback-list")} className="btn btn-danger">
             CANCEL
           </button>
         </div>

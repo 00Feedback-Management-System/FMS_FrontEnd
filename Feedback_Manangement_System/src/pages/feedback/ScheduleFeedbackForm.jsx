@@ -35,7 +35,7 @@ function ScheduleFeedbackForm() {
 
   useEffect(() => {
     fetchCourses();
-    fetchModules();
+    
     fetchFaculties();
     fetchFeedbackTypes();
   }, []);
@@ -58,14 +58,20 @@ function ScheduleFeedbackForm() {
     }
   };
 
-  const fetchModules = async () => {
-    try {
-      const data = await getModules();
-      setModules(data);
-    } catch (error) {
-      console.error("Failed to load modules:", error);
+ const fetchModulesByCourse = async (courseId) => {
+  try {
+    if (!courseId) {
+      setModules([]);
+      return;
     }
-  };
+    const response = await Api.get(`Modules/ByCourse/${courseId}`);
+    setModules(response.data);
+  } catch (error) {
+    console.error("Failed to load modules:", error);
+    setModules([]);
+  }
+};
+
 
   const fetchFaculties = async () => {
     try {
@@ -108,8 +114,10 @@ function ScheduleFeedbackForm() {
     if (name === "courseId") {
       if (value) {
         fetchGroupsByCourse(value);
+        fetchModulesByCourse(value);  // ✅ fetch modules for selected course
       } else {
         setGroups([]);
+        setModules([]);
       }
     }
   };
@@ -125,6 +133,13 @@ function ScheduleFeedbackForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    
+   // Validate date order
+  if (new Date(formData.startDate) > new Date(formData.endDate)) {
+    alert("Start Date cannot be greater than End Date!");
+    return;
+  }
 
     const selectedFeedbackType = feedbackTypes.find(
       (t) => t.feedback_type_id === Number(formData.feedbackTypeId)
