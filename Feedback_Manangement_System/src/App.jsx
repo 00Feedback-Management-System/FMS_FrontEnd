@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { Outlet } from 'react-router-dom';
 import AddQuestionForm from "./pages/feedback/AddQuestionForm";
 import ScheduleFeedbackList from "./pages/feedback/ScheduleFeedbackList";
-import StudentFeedbackForm from './pages/feedback/StudentFeedbackForm';
+import StudentFeedbackForm from './pages/Student/StudentFeedbackForm';
 import StudentList from "./pages/feedback/StudentList";
 import RemainingStudent from "./pages/feedback/RemainingStudent";
 import FeedbackTypeForm from './pages/feedback/FeedbackTypeForm';
@@ -75,6 +75,7 @@ function App() {
               <Route element={<ProtectedRoute allowedRoles={["student"]}/>}>
                 <Route path="student-pending-feedbacklist" element={<StudentPendingFeedbackList />} />
                 <Route path="student-feedback-history" element={<StudentFeedbackHistoryList />} />
+                <Route path="student-feedback-form" element={<StudentFeedbackForm />} />
               </Route>
               <Route element={<ProtectedRoute allowedRoles={["Trainer"]}/>}>
                 <Route path="staff-dashboard" element={<StaffDashboard />} />
