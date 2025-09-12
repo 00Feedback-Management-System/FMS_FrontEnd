@@ -1,121 +1,147 @@
+import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
-import { DataGrid} from '@mui/x-data-grid';
-//import { useNavigate } from "react-router-dom";
-const columns= [
-  { field: 'id', headerName: 'ID', width: 90 },
-  {
-    field: 'course',
-    headerName: 'Course',
-   // width: 150,
-    flex: 1,
-    editable: true,
-    renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>Course</span>
-    ),
-  },
-  {
-    field: 'date',
-    headerName: 'Date',
-   // width: 150,
-    flex: 1,
-    editable: true,
-    renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>Date</span>
-    ),
-  },
-  {
-    field: 'module',
-    headerName: 'Module',
-   // type: 'number',
-   // width: 150,
-    flex: 1,
-    editable: true,
-    renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>Module</span>
-    ),
-  },
-  {
-    field: 'type',
-    headerName: 'Type',
-    sortable: false,
-    flex: 1,
-  //  width: 150,
-    renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>Type</span>
-    ),
-    
-  },
-
-{
-    field: 'session',
-    headerName: 'Session',
-   // type: 'number',
-   // width: 150,
-    flex: 1,
-    editable: true,
-    renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>Session</span>
-    ),
-  },
-  
-  {
-    field: 'rating',
-    headerName: 'Rating',
-   // width: 150,
-    flex: 1,
-    editable: true,
-    renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>Rating</span>
-    ),
-  },
-
-];
-
-const rows = [
-  { id: 1, course: 'PG-DAC',date: '20-08-2025', module: 'DOT NET',type: 'Mid Module',session: '4',rating:'4.3' },
-   { id: 2, course: 'PG-DAC',date: '15-08-2025', module: 'JAVA',type: 'Mid Module',session: '5',rating:'4.2' },
-    { id: 3, course: 'PG-DAC',date: '10-08-2025', module: 'DBT',type: 'Mid Module',session: '4',rating:'3.2' },
-];
+import { DataGrid } from '@mui/x-data-grid';
+import { Typography, CircularProgress, Alert } from "@mui/material";
+import { useNavigate } from 'react-router-dom';
 
 function StudentFeedbackHistoryList() {
+    const navigate = useNavigate();
+    const [rows, setRows] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  return (
+    const columns = [
+    { field: 'feedbackId', headerName: 'ID', width: 60 },
+    {
+        field: 'feedbackTypeName', // Match API response
+        headerName: 'Type',
+        sortable: false,
+        width: 280,
+        renderHeader: () => (
+            <span style={{ color: "black", fontWeight: "bold" }}>Type</span>
+        ),
+    },
+    {
+        field: 'courseName', // Match API response
+        headerName: 'Course',
+        width: 120,
+        renderHeader: () => (
+            <span style={{ color: "black", fontWeight: "bold" }}>Course</span>
+        ),
+    },
+    {
+        field: 'moduleName', // Match API response
+        headerName: 'Module',
+        width: 100,
+        renderHeader: () => (
+            <span style={{ color: "black", fontWeight: "bold" }}>Module</span>
+        ),
+    },
+    {
+        field: 'staffName',
+        headerName: 'Faculty',
+        width: 150,
+        renderHeader: () => (
+            <span style={{ color: "black", fontWeight: "bold" }}>Faculty</span>
+        ),
+    },
+    {
+        field: 'session',
+        headerName: 'Session',
+        width: 100,
+        renderHeader: () => (
+            <span style={{ color: "black", fontWeight: "bold" }}>Session</span>
+        ),
+    },
+    {
+        field: "actions",
+        headerName: "Action",
+        width: 100,
+        renderHeader: () => (
+            <span style={{ color: "black", fontWeight: "bold" }}>Action</span>
+        ),
+        renderCell: (params) => (
+            <Typography
+                color="primary"
+                style={{ cursor: 'pointer'}}
+                onClick={() => handleEdit(params.row)}
+            >
+                Open&Fill
+            </Typography>
+        ),
+    }
+];
 
-    <div className='container'>
-        
-        <h2 className="table-header text-center mt-3">Feedback History</h2>
-         <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          mb: 2,
-          padding: 2,
-          borderRadius: 1,
-        }}
-      >
-        
+    const handleEdit = (row) => {
+        console.log("row", row);
+        navigate('/app/student-feedback-form', {state: {feedbackData: row}})
+    };
 
-      </Box>
+    useEffect(() => {
+        const fetchPendingFeedbacks = async () => {
+            try {
+                const response = await fetch('https://localhost:7056/api/Feedback/GetFeedback');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                // Add an 'id' property to each row, as DataGrid requires it.
+                // The 'feedbackId' from the API can be used directly.
+                const formattedData = data.map(item => ({
+                    ...item,
+                    id: item.feedbackId 
+                }));
 
-        <Box sx={{ height: 400, width: '100%' }}>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5,
-            },
-          },
-        }}
-        pageSizeOptions={[5]}
-        disableRowSelectionOnClick
-      />
-    </Box>
-    </div>
-    
-  );
+                setRows(formattedData);
+            } catch (e) {
+                console.error("Failed to fetch pending feedbacks:", e);
+                setError("Failed to load data. Please try again later.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchPendingFeedbacks();
+    }, []); 
+
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    if (error) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                <Alert severity="error">{error}</Alert>
+            </Box>
+        );
+    }
+
+    return (
+        <div className='container'>
+            <h2 className="table-header text-center mt-3">Feedback History</h2>
+            <Box sx={{ height: 400, width: '99%', mt: 5 }}>
+                <DataGrid
+                    rows={rows}
+                    columns={columns}
+                    getRowId={(row) => row.feedbackGroupId} 
+                    initialState={{
+                        pagination: {
+                            paginationModel: {
+                                pageSize: 5,
+                            },
+                        },
+                    }}
+                    pageSizeOptions={[5]}
+                    disableRowSelectionOnClick
+                />
+            </Box>
+        </div>
+    );
 }
 
 export default StudentFeedbackHistoryList;
