@@ -8,7 +8,6 @@ import StudentFeedbackForm from './pages/feedback/StudentFeedbackForm';
 import StudentList from "./pages/feedback/StudentList";
 import RemainingStudent from "./pages/feedback/RemainingStudent";
 import FeedbackTypeForm from './pages/feedback/FeedbackTypeForm';
-import EditGroup from './pages/feedback/EditGroup';
 import ScheduleFeedbackForm from './pages/feedback/ScheduleFeedbackForm';
 import FacultyFeedbackSummary from './pages/feedback/FacultyFeedbackSummary';
 import DashboardLayout from './components/DashboardLayout';
@@ -21,6 +20,7 @@ import Coursewise_Report from './pages/Reports/Coursewise_Report';
 import Forgot_Password from './pages/Login/Forgot_Password';
 import StudentPendingFeedbackList from './pages/Student/StudentPendingFeedbackList';
 import StudentFeedbackHistoryList from './pages/Student/StudentFeedbackHistoryList';
+import UpdateFeedbackForm from './pages/feedback/UpdateFeedbackForm';
 
 export const RoleContext = createContext();
 
@@ -66,6 +66,7 @@ function App() {
                 <Route path="student-list/:scheduleId" element={<StudentList />} />
                 <Route path="remaining/:scheduleId" element={<RemainingStudent />} />
                 <Route path="schedule-feedback-form" element={<ScheduleFeedbackForm />} />
+                <Route path="update-feedback-form/:feedbackId" element={<UpdateFeedbackForm />} />
                 <Route path="per-faculty-feedback-summary" element={<FacultyFeedbackSummary />} />
                 <Route path="feedback-dashboard" element={<FeedbackDashboard />} />
                 <Route path="faculty-feedback-summary" element={<Faculty_Feedback_summary />} />
