@@ -27,29 +27,35 @@ export default function ScheduleFeedbackList() {
     navigate("/app/schedule-feedback-form");
   };
 
-  // ✅ Delete by feedbackGroupId (unique per row)
-  const handleDelete = async (id) => {
+  // Delete by feedbackGroupId (unique per row)
+  const handleDelete = async (feedbackGroupId) => {
     if (!window.confirm("Are you sure you want to delete this record?")) return;
 
     try {
+      // NOTE: backend should expose an endpoint to delete a single FeedbackGroup by id.
+      // I used DeleteFeedbackGroup here — update if your backend path differs.
       await axios.delete(
-        `https://localhost:7056/api/Feedback/DeleteFeedback/${id}`
+        `https://localhost:7056/api/Feedback/DeleteFeedbackGroup/${feedbackGroupId}`
       );
+
       setRows((prevRows) =>
-        prevRows.filter((row) => row.feedbackGroupId !== id)
+        prevRows.filter((row) => (row.feedbackGroupId || row.Id) !== feedbackGroupId)
       );
       alert("Record deleted successfully!");
     } catch (error) {
       console.error("Error deleting record:", error);
-      alert("Failed to delete record.");
+      // If backend returns a message, show it
+      const message =
+        error?.response?.data?.message || error?.message || "Failed to delete record.";
+      alert(message);
     }
   };
 
-  // ✅ Safe date formatter
+  // Safe date formatter: returns "-" for null/invalid, else dd/mm/yyyy
   const formatDate = (value) => {
-    if (!value) return "-"; // null/empty
+    if (!value) return "-";
     const date = new Date(value);
-    if (isNaN(date.getTime())) return "-"; // invalid date
+    if (isNaN(date.getTime())) return "-";
     return date.toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "2-digit",
@@ -58,7 +64,15 @@ export default function ScheduleFeedbackList() {
   };
 
   const columns = [
-    { field: "feedbackId", headerName: "Feedback ID", width: 100 },
+    // show feedbackGroupId in header "Id"
+    {
+      field: "feedbackGroupId",
+      headerName: "Id",
+      width: 100,
+      // if backend uses "Id" instead of "feedbackGroupId" allow fallback in renderCell
+      renderCell: (params) => params.value ?? params.row.Id ?? "-",
+    },
+   
     { field: "courseName", headerName: "Course", flex: 1 },
     { field: "moduleName", headerName: "Module", flex: 1 },
     { field: "feedbackTypeName", headerName: "Type", flex: 1 },
@@ -68,7 +82,7 @@ export default function ScheduleFeedbackList() {
       headerName: "Group",
       flex: 1,
       renderCell: (params) =>
-        params.value && params.value.trim() !== "" ? params.value : "-",
+        params.value && params.value.toString().trim() !== "" ? params.value : "-",
     },
     { field: "session", headerName: "Session", flex: 1 },
     {
@@ -87,15 +101,12 @@ export default function ScheduleFeedbackList() {
       field: "filledby",
       headerName: "FilledBy",
       flex: 1,
-      renderHeader: () => (
-        <span style={{ color: "black", fontWeight: "bold" }}>FilledBy</span>
-      ),
       renderCell: (params) => (
         <a
-          href={`student-list/${params.row.feedbackGroupId}`}
+          href={`student-list/${params.row.feedbackGroupId ?? params.row.Id}`}
           style={{ color: "blue", textDecoration: "underline" }}
         >
-          {params.value}
+          {params.value ?? "-"}
         </a>
       ),
     },
@@ -103,15 +114,12 @@ export default function ScheduleFeedbackList() {
       field: "remaining",
       headerName: "Remaining",
       flex: 1,
-      renderHeader: () => (
-        <span style={{ color: "black", fontWeight: "bold" }}>Remaining</span>
-      ),
       renderCell: (params) => (
         <a
-          href={`remaining/${params.row.feedbackGroupId}`}
+          href={`remaining/${params.row.feedbackGroupId ?? params.row.Id}`}
           style={{ color: "blue", textDecoration: "underline" }}
         >
-          {params.value}
+          {params.value ?? "-"}
         </a>
       ),
     },
@@ -120,28 +128,45 @@ export default function ScheduleFeedbackList() {
       field: "actions",
       headerName: "Action",
       flex: 1,
-      renderCell: (params) => (
-        <>
-          <Button color="primary" size="small">
-            <EditIcon />
-          </Button>
+      renderCell: (params) => {
+        const idForRow = params.row.feedbackGroupId ?? params.row.Id;
+        return (
+          <>
           <Button
-            color="error"
-            size="small"
-            onClick={() => handleDelete(params.row.feedbackGroupId)}
-          >
-            <DeleteIcon />
-          </Button>
-        </>
-      ),
+  color="primary"
+  size="small"
+  sx={{ mr: 1 }}
+  onClick={() => {
+    const start = new Date(params.row.startDate);
+    const now = new Date();
+    if (start <= now) {
+      alert("You cannot update feedback after start date.");
+      return;
+    }
+    navigate(`/app/update-feedback-form/${params.row.feedbackId}`, {
+      state: { feedbackId: params.row.feedbackId },
+    });
+  }}
+>
+  <EditIcon />
+</Button>
+
+            <Button
+              color="error"
+              size="small"
+              onClick={() => handleDelete(idForRow)}
+            >
+              <DeleteIcon />
+            </Button>
+          </>
+        );
+      },
     },
   ];
 
   return (
     <div className="container">
-      <h2 className="table-header text-center mt-3">
-        Schedule Feedback List
-      </h2>
+      <h2 className="table-header text-center mt-3">Schedule Feedback List</h2>
 
       <Box
         sx={{
@@ -167,7 +192,8 @@ export default function ScheduleFeedbackList() {
         <DataGrid
           rows={rows}
           columns={columns}
-          getRowId={(row) => row.feedbackGroupId} // ✅ unique id
+          // prefer feedbackGroupId as the unique id, fallback to Id or feedbackId
+          getRowId={(row) => row.feedbackGroupId ?? row.Id ?? row.feedbackId}
           initialState={{
             pagination: { paginationModel: { pageSize: 5 } },
           }}
