@@ -21,7 +21,6 @@ import Forgot_Password from './pages/Login/Forgot_Password';
 import StudentPendingFeedbackList from './pages/Student/StudentPendingFeedbackList';
 import StudentFeedbackHistoryList from './pages/Student/StudentFeedbackHistoryList';
 import UpdateFeedbackForm from './pages/feedback/UpdateFeedbackForm';
-import SubmittedFeedbackForm from './pages/Student/SubmittedFeedbackForm';
 
 export const RoleContext = createContext();
 
@@ -77,7 +76,6 @@ function App() {
                 <Route path="student-pending-feedbacklist" element={<StudentPendingFeedbackList />} />
                 <Route path="student-feedback-history" element={<StudentFeedbackHistoryList />} />
                 <Route path="student-feedback-form" element={<StudentFeedbackForm />} />
-                <Route path="submitted-feedback-form" element={<SubmittedFeedbackForm />} />
               </Route>
               <Route element={<ProtectedRoute allowedRoles={["Trainer"]}/>}>
                 <Route path="staff-dashboard" element={<StaffDashboard />} />
