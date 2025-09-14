@@ -64,30 +64,56 @@ function StudentFeedbackHistoryList() {
             <Typography
                 color="primary"
                 style={{ cursor: 'pointer'}}
-                onClick={() => handleEdit(params.row)}
+                onClick={() => handleView(params.row)}
             >
-                Open&Fill
+                View
             </Typography>
         ),
     }
 ];
 
-    const handleEdit = (row) => {
+    const handleView = (row) => {
         console.log("row", row);
-        navigate('/app/student-feedback-form', {state: {feedbackData: row}})
+        navigate('/app/submitted-feedback-form', {state: {feedbackData: row}})
     };
 
     useEffect(() => {
-        const fetchPendingFeedbacks = async () => {
+        const fetchSubmittedFeedbacks = async () => {
+            setLoading(true);
+            setError(null);
+            
+            let studentData = null;
+            try 
+            {
+                const loginStudent = localStorage.getItem('user');
+                if(loginStudent)
+                {
+                    studentData = JSON.parse(loginStudent);
+                }
+            }
+            catch(e)
+            {
+                console.error("Failed to parse user data from localStorage:", e);
+                setError("An error occurred with user data. Please try logging in again.");
+                setLoading(false);
+                return;
+            }
+
+            const studentRollNo = studentData ? studentData.id : null;
+            if(!studentRollNo)
+            {
+                setError("Could not find student ID. Please log in again.");
+                setLoading(false);
+                return;
+            }
+
             try {
-                const response = await fetch('https://localhost:7056/api/Feedback/GetFeedback');
+                const response = await fetch(`https://localhost:7056/api/Feedback/GetSubmittedFeedbackHistory/${studentRollNo}`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
                 
-                // Add an 'id' property to each row, as DataGrid requires it.
-                // The 'feedbackId' from the API can be used directly.
                 const formattedData = data.map(item => ({
                     ...item,
                     id: item.feedbackId 
@@ -102,7 +128,7 @@ function StudentFeedbackHistoryList() {
             }
         };
 
-        fetchPendingFeedbacks();
+        fetchSubmittedFeedbacks();
     }, []); 
 
     if (loading) {
@@ -128,7 +154,7 @@ function StudentFeedbackHistoryList() {
                 <DataGrid
                     rows={rows}
                     columns={columns}
-                    getRowId={(row) => row.feedbackGroupId} 
+                    getRowId={(row) => row.feedbackId} 
                     initialState={{
                         pagination: {
                             paginationModel: {
