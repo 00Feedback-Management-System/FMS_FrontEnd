@@ -11,7 +11,7 @@ function StudentPendingFeedbackList() {
     const [error, setError] = useState(null);
 
     const columns = [
-    { field: 'feedbackId', headerName: 'ID', width: 60 },
+    { field: 'feedbackGroupId', headerName: 'ID', width: 60 },
     {
         field: 'feedbackTypeName', // Match API response
         headerName: 'Type',
@@ -102,7 +102,7 @@ function StudentPendingFeedbackList() {
             }
 
             try {
-                const response = await fetch('https://localhost:7056/api/Feedback/GetFeedback');
+                const response = await fetch(`https://localhost:7056/api/Feedback/GetScheduledFeedbackByStudent/${studentRollNo}`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -111,17 +111,16 @@ function StudentPendingFeedbackList() {
                 const submittedResponses = await fetch(`https://localhost:7056/api/Feedback/GetSubmittedFeedbackIdsByStudentId/${studentRollNo}`);
                 if(!submittedResponses.ok)
                 {
-                    throw new Error(`HTTP error! status: ${submittedResponse.status}`);
+                    throw new Error(`HTTP error! status: ${submittedResponses.status}`);
                 }
 
                 const submittedIds = await submittedResponses.json();
                 
-                const pendinData = data.filter(item => !submittedIds.includes(item.feedbackId));
-                // Add an 'id' property to each row, as DataGrid requires it.
-                // The 'feedbackId' from the API can be used directly.
+                const pendinData = data.filter(item => !submittedIds.includes(item.feedbackGroupId));
+                
                 const formattedData = pendinData.map(item => ({
                     ...item,
-                    id: item.feedbackId 
+                    id: item.feedbackGroupId 
                 }));
 
                 setRows(formattedData);
@@ -159,7 +158,7 @@ function StudentPendingFeedbackList() {
                 <DataGrid
                     rows={rows}
                     columns={columns}
-                    getRowId={(row) => row.feedbackId} 
+                    getRowId={(row) => row.feedbackGroupId} 
                     initialState={{
                         pagination: {
                             paginationModel: {
