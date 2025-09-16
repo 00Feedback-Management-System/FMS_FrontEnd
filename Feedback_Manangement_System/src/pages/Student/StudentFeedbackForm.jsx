@@ -85,6 +85,7 @@ function StudentFeedbackForm() {
             
             const feedbackSubmissionData = {
                 feedbackId: feedbackData.feedbackId,
+                feedbackGroupId: feedbackData.feedbackGroupId,
                 studentId: studentRollNo, 
                 answers: answers
             };
