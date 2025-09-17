@@ -1,115 +1,119 @@
-import React from "react";
-import Box from '@mui/material/Box';
-import { DataGrid} from '@mui/x-data-grid';
+import React, { useEffect, useState } from "react";
+import Box from "@mui/material/Box";
+import { DataGrid } from "@mui/x-data-grid";
+import Button from "@mui/material/Button";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 import "./Component.css";
-import { Button } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { useParams } from "react-router-dom";
-const columns= [
-  { field: 'id', headerName: 'ID', width: 90 },
-  {
-    field: 'rollno',
-    headerName: 'Roll No',
-    width: 80,
-    flex:1,
-    editable: true,
-     renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>Roll No</span>
-    ),
-  },
-  {
-    field: 'firstname',
-    headerName: 'FIRST NAME',
-    width: 80,
-    flex:1,
-    editable: true,
-     renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>FIRST NAME</span>
-    ),
-  },
-  {
-    field: 'lastname',
-    headerName: 'LAST NAME',
-    width: 80,
-    flex:1,
-    editable: true,
-     renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>LAST NAME</span>
-    ),
-  },
-  {
-    field: 'emailid',
-    headerName: 'Email ID',
-    sortable: false,
-    width: 150,
-    flex:1,
-     renderHeader: () => (
-      <span style={{ color: "black", fontWeight: "bold" }}>Email ID</span>
-    ),
-    
-  },
+import { useParams, useLocation } from "react-router-dom";
+import Api from "../../services/api";
 
-];
-
-const rows = [
-  { id:1,rollno: 101, firstname: 'Tejaswini',lastname: 'Jadhav', emailid: 'tejaswinijadhav189@gmail.com' },
-   { id:2,rollno: 102, firstname: 'Snehal',lastname: 'Badakh', emailid: 'snehalbadakh@gmail.com'},
-    {id:3, rollno: 103,firstname: 'Suhas',lastname: 'Patil', emailid: 'suhaspatil@gmail.com'},
-    { id:4,rollno: 104,firstname: 'Shreeram',lastname: 'Joshi', emailid: 'shreeramjoshi@gmail.com'}
+const columns = [
+  { field: "student_rollno", headerName: "Roll No", flex: 1 },
+  { field: "first_name", headerName: "First Name", flex: 1 },
+  { field: "last_name", headerName: "Last Name", flex: 1 },
+  { field: "email", headerName: "Email ID", flex: 1 },
+  { field: "groupName", headerName: "Group Name", flex: 1 },
 ];
 
 export default function StudentList() {
-  const { scheduleId } = useParams();
+  const { feedbackGroupId } = useParams();
+  const location = useLocation();
+  const [rows, setRows] = useState([]);
 
-const allStudents = {
-    1: [
-      { id: 1, rollno: 101, firstname: 'Tejaswini', lastname: 'Jadhav', emailid: 'tejaswinijadhav189@gmail.com' },
-      { id: 2, rollno: 102, firstname: 'Snehal', lastname: 'Badakh', emailid: 'snehalbadakh@gmail.com' },
-    ],
-    2: [
-      { id: 1, rollno: 103, firstname: 'Suhas', lastname: 'Patil', emailid: 'suhaspatil@gmail.com' },
-      { id: 2, rollno: 104, firstname: 'Shreeram', lastname: 'Joshi', emailid: 'shreeramjoshi@gmail.com' },
-    ]
+  const isSubmittedPage = location.pathname.includes("student-list");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const endpoint = isSubmittedPage
+          ? `StudentApi/Submitted/${feedbackGroupId}`
+          : `StudentApi/NotSubmitted/${feedbackGroupId}`;
+
+        const res = await Api.get(endpoint);
+
+        const dataWithIds = res.data.map((s, index) => ({
+          id: index + 1,
+          ...s,
+        }));
+
+        setRows(dataWithIds);
+      } catch (err) {
+        console.error("Error fetching students:", err);
+      }
+    };
+
+    fetchData();
+  }, [feedbackGroupId, isSubmittedPage]);
+
+    const exportPDF = () => {
+    if (!rows || rows.length === 0) {
+      alert("No data available to export");
+      return;
+    }
+
+    console.log("Exporting rows:", rows); // ✅ check if data is coming
+
+    const doc = new jsPDF();
+    const tableColumn = ["Roll No", "First Name", "Last Name", "Email ID", "Group Name"];
+    const tableRows = [];
+
+    rows.forEach((row) => {
+      tableRows.push([
+        row.student_rollno || "",
+        row.first_name || "",
+        row.last_name || "",
+        row.email || "",
+        row.groupName || "",
+      ]);
+    });
+
+    // Title
+    doc.setFontSize(14);
+    doc.text(
+      isSubmittedPage ? "Filled Student List" : "Remaining Student List",
+      14,
+      15
+    );
+
+    // Table
+    doc.autoTable({
+      head: [tableColumn],
+      body: tableRows,
+      startY: 25,
+    });
+
+    // Save file
+    doc.save(
+      isSubmittedPage ? "filled_students.pdf" : "remaining_students.pdf"
+    );
   };
 
-  const rows = allStudents[scheduleId] || [];
 
   return (
-
     <div className="container">
-        
-        <h2 className="table-header text-center mt-3" > Filled Student List</h2>
-        {/* <h1 className="table-header" > Feedback Type List </h1> */}
-         <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          mb: 2,
-          padding: 2,
-          borderRadius: 1,
-        }}
-      >
-        
+      <h2 className="table-header text-center mt-3">
+        {isSubmittedPage ? "Filled Student List" : "Remaining Student List"}
+      </h2>
 
+      <div className="d-flex justify-content-end mb-2">
+        <Button variant="contained" color="primary" onClick={exportPDF}>
+          Export to PDF
+        </Button>
+      </div>
+
+      <Box sx={{ height: 400, width: "100%" }}>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={(row) => row.id}
+          initialState={{
+            pagination: { paginationModel: { pageSize: 5 } },
+          }}
+          pageSizeOptions={[5, 10, 20]}
+          disableRowSelectionOnClick
+        />
       </Box>
-
-        <Box sx={{ height: 400, width: '100%' }}>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5,
-            },
-          },
-        }}
-        pageSizeOptions={[5,10,20]}
-        disableRowSelectionOnClick
-      />
-    </Box>
     </div>
-    
   );
 }

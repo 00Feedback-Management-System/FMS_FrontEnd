@@ -6,11 +6,9 @@ import AddQuestionForm from "./pages/feedback/AddQuestionForm";
 import ScheduleFeedbackList from "./pages/feedback/ScheduleFeedbackList";
 import StudentFeedbackForm from './pages/Student/StudentFeedbackForm';
 import StudentList from "./pages/feedback/StudentList";
-import RemainingStudent from "./pages/feedback/RemainingStudent";
 import FeedbackTypeForm from './pages/feedback/FeedbackTypeForm';
 import ScheduleFeedbackForm from './pages/feedback/ScheduleFeedbackForm';
 import FacultyFeedbackSummary from './pages/feedback/FacultyFeedbackSummary';
-import DashboardLayout from './components/DashboardLayout';
 import FeedbackDashboard from './pages/Dashboard/Feedbackdashbaord';
 import Login from './pages/Login/Login';
 import Faculty_Feedback_summary from './pages/Reports/Faculty_Feedback_summary';
@@ -64,8 +62,8 @@ function App() {
                 <Route path="add-question" element={<AddQuestionForm />} />                      {/* Create */}
                 <Route path="add-question/:id" element={<AddQuestionForm />} />                  {/* Update */}
                 <Route path="schedule-feedback-list" element={<ScheduleFeedbackList />} />
-                <Route path="student-list/:scheduleId" element={<StudentList />} />
-                <Route path="remaining/:scheduleId" element={<RemainingStudent />} />
+                <Route path="student-list/:feedbackGroupId" element={<StudentList />} />
+                <Route path="remaining/:feedbackGroupId" element={<StudentList />} />
                 <Route path="schedule-feedback-form" element={<ScheduleFeedbackForm />} />
                 <Route path="update-feedback-form/:feedbackId" element={<UpdateFeedbackForm />} />
                 <Route path="per-faculty-feedback-summary" element={<FacultyFeedbackSummary />} />
