@@ -127,45 +127,35 @@ const handleDownloadFullPdf = () => {
 
   // Fetch scheduled feedback for logged-in staff
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user || !user.id) return;
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (!user || !user.id) return;
 
-    const fetchScheduledFeedback = async () => {
-      try {
-        const response = await Api.get(`/staff/${user.id}/scheduledFeedback`);
-        const feedbackData = await Promise.all(
-          response.data.map(async (f, index) => {
-            let rating = null;
-            try {
-             const ratingRes = await Api.get(
-  `QuestionAnswer/GetOverallRating/${f.feedback_type_id}`
-);
-              rating = ratingRes.data.overallRating;
-            } catch (err) {
-              console.warn("No rating available for feedbackType:", f.feedbackTypeId);
-            }
-            return {
-              id: f.feedbackId || index + 1,
-              course: f.courseName,
-              date: f.startDate,
-              module: f.moduleName,
-              type: f.feedbackTypeName,
-              session: f.session,
-             feedbackTypeId: f.feedback_type_id,   
-  rating, 
-            };
-          })
-        );
-        setRows(feedbackData);
-      } catch (error) {
-        console.error("Error fetching scheduled feedback:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchScheduledFeedback = async () => {
+    try {
+      const response = await Api.get(`/staff/${user.id}/scheduledFeedback`);
 
-    fetchScheduledFeedback();
-  }, []);
+      // Use backend rating directly
+      const feedbackData = response.data.map((f, index) => ({
+        id: f.feedbackId || index + 1,
+        course: f.courseName,
+        date: f.startDate,
+        module: f.moduleName,
+        type: f.feedbackTypeName,
+        session: f.session,
+        feedbackTypeId: f.feedback_type_id,
+        rating: f.rating ?? "N/A", // ✅ already provided by backend
+      }));
+
+      setRows(feedbackData);
+    } catch (error) {
+      console.error("Error fetching scheduled feedback:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchScheduledFeedback();
+}, []);
 
   return (
     
@@ -208,3 +198,5 @@ const handleDownloadFullPdf = () => {
     </div>
   );
 }
+
+
