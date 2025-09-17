@@ -11,7 +11,7 @@ function StudentFeedbackHistoryList() {
     const [error, setError] = useState(null);
 
     const columns = [
-    { field: 'feedbackId', headerName: 'ID', width: 60 },
+    { field: 'feedbackGroupId', headerName: 'ID', width: 60 },
     {
         field: 'feedbackTypeName', // Match API response
         headerName: 'Type',
@@ -116,7 +116,7 @@ function StudentFeedbackHistoryList() {
                 
                 const formattedData = data.map(item => ({
                     ...item,
-                    id: item.feedbackId 
+                    id: item.feedbackGroupId 
                 }));
 
                 setRows(formattedData);
@@ -154,7 +154,7 @@ function StudentFeedbackHistoryList() {
                 <DataGrid
                     rows={rows}
                     columns={columns}
-                    getRowId={(row) => row.feedbackId}
+                    getRowId={(row) => row.feedbackGroupId}
                     initialState={{
                         pagination: {
                             paginationModel: {
