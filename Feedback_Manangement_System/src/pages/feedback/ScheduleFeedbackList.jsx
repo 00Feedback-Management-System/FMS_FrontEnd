@@ -14,14 +14,29 @@ export default function ScheduleFeedbackList() {
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
-    Api.get("Feedback/GetFeedback")
-      .then((res) => {
-        setRows(res.data);
-      })
-      .catch((err) => {
-        console.error("Error fetching feedback:", err);
-      });
-  }, []);
+  Api.get("Feedback/GetFeedback")
+    .then(async (res) => {
+      const feedbacks = res.data;
+
+      // fetch counts for each feedbackGroup
+      const enriched = await Promise.all(
+        feedbacks.map(async (f) => {
+          try {
+            const summary = await Api.get(`StudentApi/FeedbackSubmit/${f.feedbackGroupId}`);
+            return { ...f, filledby: summary.data.submittedCount, remaining: summary.data.remainingCount };
+          } catch {
+            return { ...f, filledby: 0, remaining: 0 };
+          }
+        })
+      );
+
+      setRows(enriched);
+    })
+    .catch((err) => {
+      console.error("Error fetching feedback:", err);
+    });
+}, []);
+
 
   const handleAddClick = () => {
     navigate("/app/schedule-feedback-form");
