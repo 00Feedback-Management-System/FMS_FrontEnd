@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { Box, Button } from "@mui/material";
-import { getCourses } from "../../services/course";
 import Api from "../../services/api";
-import { getStaff } from "../../services/staff";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const FeedbackDashboard = () => {
-  const [courses, setCourses] = useState([]);
-  const [modules, setModules] = useState([]); // modules for selected course
-  const [faculties, setFaculties] = useState([]);
-  const [feedbackTypes, setFeedbackTypes] = useState([]);
+  const [feedbacks, setFeedbacks] = useState([]);
 
+  // Dropdown selections
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedModule, setSelectedModule] = useState("");
   const [selectedFaculty, setSelectedFaculty] = useState("");
   const [selectedFeedbackType, setSelectedFeedbackType] = useState("");
+  const [summary, setSummary] = useState({
+    submitted: 0,
+    remaining: 0,
+    rating: 0,
+  });
 
   const [rows, setRows] = useState([]);
 
@@ -29,65 +32,188 @@ const FeedbackDashboard = () => {
 
   // Fetch on mount
   useEffect(() => {
-    fetchCourses();
-    fetchFaculties();
-    // fetchFeedbacks();
-    feedbackTypeList();
+    fetchFeedbacks();
   }, []);
 
-  const fetchCourses = async () => {
+  const fetchFeedbacks = async () => {
     try {
-      const data = await getCourses();
-      setCourses(data || []);
-      console.debug("fetchCourses -> courses", data);
+      const response = await Api.get("Feedback/FeedbackDashboard-Rating");
+      const data = response.data || [];
+      setFeedbacks(data);
     } catch (error) {
-      console.error("Failed to load courses:", error);
+      console.error("Failed to load feedbacks:", error);
     }
   };
 
-  const fetchModulesByCourse = async (courseId) => {
+  // -------------------
+  // Dropdown data (deduplicate with Set)
+  const courses = [...new Set(feedbacks.map((f) => f.courseName))];
+  const modules = selectedCourse
+    ? [
+        ...new Set(
+          feedbacks
+            .filter((f) => f.courseName === selectedCourse)
+            .map((f) => f.moduleName)
+        ),
+      ]
+    : [];
+
+  const faculties = selectedModule
+    ? [
+        ...new Set(
+          feedbacks
+            .filter(
+              (f) =>
+                f.courseName === selectedCourse &&
+                f.moduleName === selectedModule
+            )
+            .map((f) => f.staffName)
+        ),
+      ]
+    : [];
+
+  const feedbackTypes = selectedFaculty
+    ? [
+        ...new Set(
+          feedbacks
+            .filter(
+              (f) =>
+                f.courseName === selectedCourse &&
+                f.moduleName === selectedModule &&
+                f.staffName === selectedFaculty
+            )
+            .map((f) => f.feedbackTypeName)
+        ),
+      ]
+    : [];
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("en-GB"); // gives DD/MM/YYYY
+  };
+  const getDateRange = () => {
+    const filtered = feedbacks.filter(
+      (f) =>
+        (!selectedCourse || f.courseName === selectedCourse) &&
+        (!selectedModule || f.moduleName === selectedModule) &&
+        (!selectedFaculty || f.staffName === selectedFaculty) &&
+        (!selectedFeedbackType || f.feedbackTypeName === selectedFeedbackType)
+    );
+
+    if (filtered.length === 0) return "";
+
+    const startDates = filtered.map((f) => new Date(f.startDate));
+    const endDates = filtered.map((f) => new Date(f.endDate));
+
+    const minStart = new Date(Math.min(...startDates));
+    const maxEnd = new Date(Math.max(...endDates));
+
+    return `${formatDate(minStart)} to ${formatDate(maxEnd)}`;
+  };
+
+  //bind feedbackid and typeid
+  // Find the matching feedback object
+  const matchedFeedback = feedbacks.find(
+    (f) =>
+      f.courseName === selectedCourse &&
+      f.moduleName === selectedModule &&
+      f.staffName === selectedFaculty &&
+      f.feedbackTypeName === selectedFeedbackType
+  );
+
+  // Extract IDs, fallback to 0 if not found
+  const feedbackId = matchedFeedback?.feedbackId || 0;
+  const feedbackTypeId = matchedFeedback?.feedbackTypeId || 0;
+  const feedbackGroupId = matchedFeedback?.feedbackGroupId || 0;
+  // -------------------as per search button click
+  const getQuestionRating = async () => {
     try {
-      if (!courseId) {
-        setModules([]);
-        return;
-      }
-      const response = await Api.get(`Modules/ByCourse/${courseId}`);
-      setModules(response.data || []);
-      console.debug("fetchModulesByCourse -> modules", response.data);
+      const response = await Api.post("Feedback/FacultyFeedbackSummary", {
+        staff_name: selectedFaculty,
+        module_name: selectedModule,
+        course_name: selectedCourse,
+        type_name: selectedFeedbackType,
+        date: getDateRange(),
+        feedbackTypeId: feedbackTypeId,
+        feedbackId: feedbackId,
+        feedbackGroupId: feedbackGroupId,
+      });
+
+      const data = response.data || {};
+
+      // Update summary
+      setSummary({
+        submitted: data.submitted || 0,
+        remaining: data.remaining || 0,
+        rating: data.rating ? data.rating.toFixed(2) : 0,
+      });
+
+      // Only MCQ questions mapped
+      const processedRows = (data.questions || [])
+        .filter((q) => q.questionType === "mcq" || q.questionType === "rating")
+        .map((item, index) => ({
+          id: index + 1,
+          question: item.questionText,
+          excellent: item.excellent,
+          good: item.good,
+          satisfactory: item.average,
+          unsatisfactory: item.poor,
+        }));
+
+      setRows(processedRows);
     } catch (error) {
-      console.error("Failed to load modules:", error);
-      setModules([]);
+      console.error("Error fetching summary:", error);
     }
   };
 
-  const fetchFaculties = async () => {
-    try {
-      const data = await getStaff();
-      setFaculties(data || []);
-      console.debug("fetchFaculties -> faculties", data);
-    } catch (error) {
-      console.error("Failed to load faculties:", error);
-    }
-  };
+  // Export to PDF
+  const exportPDF = () => {
+    const doc = new jsPDF();
 
-  // bind feedback type list
-  const feedbackTypeList = async () => {
-    try {
-      const response = await Api.get("FeedbackType/GetFeedbackType");
-      console.log("Feedback Type List", response.data);
-      setFeedbackTypes(response.data || []);
-    } catch (error) {
-      console.error("Failed to load feedback types:", error);
-    }
-  };
+    // Title
+    doc.setFontSize(16);
+    doc.text("Faculty Feedback Summary", 14, 20);
 
-  // Course select change
-  const handleCourseChange = (e) => {
-    const value = e.target.value;
-    setSelectedCourse(value);
-    setSelectedModule(""); // reset module when course changes
-    if (value) fetchModulesByCourse(value);
-    else setModules([]);
+    // Summary
+    doc.setFontSize(12);
+    doc.text(`Course: ${selectedCourse}`, 14, 30);
+    doc.text(`Module: ${selectedModule}`, 14, 37);
+    doc.text(`Faculty: ${selectedFaculty}`, 14, 44);
+    doc.text(`Type: ${selectedFeedbackType}`, 14, 51);
+    doc.text(`Date: ${getDateRange()}`, 14, 58);
+    doc.text(`Submitted: ${summary.submitted}`, 14, 65);
+    doc.text(`Remaining: ${summary.remaining}`, 14, 72);
+    doc.text(`Rating: ${summary.rating}`, 14, 79);
+
+    // Questions Table
+    autoTable(doc, {
+      startY: 90,
+      head: [
+        [
+          "Sr.No",
+          "Question",
+          "Excellent",
+          "Good",
+          "Satisfactory",
+          "Unsatisfactory",
+        ],
+      ],
+      body: rows.map((r) => [
+        r.id,
+        r.question,
+        r.excellent,
+        r.good,
+        r.satisfactory,
+        r.unsatisfactory,
+      ]),
+      theme: "grid",
+      styles: { fontSize: 10, cellPadding: 3 },
+      headStyles: { fillColor: [22, 160, 133] },
+    });
+
+    // Save the PDF
+    doc.save("Feedback_Summary.pdf");
   };
 
   return (
@@ -97,99 +223,121 @@ const FeedbackDashboard = () => {
       <Box p={3}>
         {/* Filter Section */}
         <div className="row mb-3 col-12">
-          <div className="col-md-4 mb-3">
+          {/* Course */}
+          <div className="col-md-3 mb-3">
+            <select
+              className="form-select"
+              value={selectedCourse}
+              onChange={(e) => {
+                setSelectedCourse(e.target.value);
+                setSelectedModule("");
+                setSelectedFaculty("");
+                setSelectedFeedbackType("");
+              }}
+            >
+              <option value="">Course</option>
+              {courses.map((course, i) => (
+                <option key={i} value={course}>
+                  {course}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Module */}
+          <div className="col-md-3 mb-3">
+            <select
+              className="form-select"
+              value={selectedModule}
+              onChange={(e) => {
+                setSelectedModule(e.target.value);
+                setSelectedFaculty("");
+                setSelectedFeedbackType("");
+              }}
+              disabled={!selectedCourse}
+            >
+              <option value="">Module</option>
+              {modules.map((mod, i) => (
+                <option key={i} value={mod}>
+                  {mod}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Faculty */}
+          <div className="col-md-3 mb-3">
+            <select
+              className="form-select"
+              value={selectedFaculty}
+              onChange={(e) => {
+                setSelectedFaculty(e.target.value);
+                setSelectedFeedbackType("");
+              }}
+              disabled={!selectedModule}
+            >
+              <option value="">Faculty</option>
+              {faculties.map((fac, i) => (
+                <option key={i} value={fac}>
+                  {fac}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Feedback Type */}
+          <div className="col-md-3 mb-3">
             <select
               className="form-select"
               value={selectedFeedbackType}
               onChange={(e) => setSelectedFeedbackType(e.target.value)}
+              disabled={!selectedFaculty}
             >
               <option value="">Type</option>
-              {feedbackTypes.map((ft) => (
-                <option
-                  key={ft.feedback_type_id}
-                  value={String(ft.feedback_type_id)}
-                >
-                  {ft.feedback_type_title}
+              {feedbackTypes.map((ft, i) => (
+                <option key={i} value={ft}>
+                  {ft}
                 </option>
               ))}
             </select>
           </div>
-
-          <div className="col-md-4 mb-3">
-            <select
-              className="form-select"
-              value={selectedCourse}
-              onChange={handleCourseChange}
-            >
-              <option value="">Course</option>
-              {courses.map((course) => (
-                <option key={course.course_id} value={String(course.course_id)}>
-                  {course.course_name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="col-md-4 mb-3">
-            <select
-              className="form-select"
-              value={selectedModule}
-              onChange={(e) => setSelectedModule(e.target.value)}
-            >
-              <option value="">Module</option>
-              {modules.map((mod) => (
-                <option key={mod.module_id} value={String(mod.module_id)}>
-                  {mod.module_name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="col-md-4 mb-3">
-            <select
-              className="form-select"
-              value={selectedFaculty}
-              onChange={(e) => setSelectedFaculty(e.target.value)}
-            >
-              <option value="">Faculty</option>
-              {faculties.map((fac) => (
-                <option key={fac.staff_id} value={String(fac.staff_id)}>
-                  {fac.first_name} {fac.last_name}
-                </option>
-              ))}
-              <option>Jane</option>
-            </select>
-          </div>
-
           <div className="col-md-4 mb-3">
             <input
               type="text"
-              value="12-03-2025 to 15-08-2025 "
+              value={getDateRange()}
               readOnly
               className="form-control"
+              placeholder="Start Date to End Date"
             />
           </div>
         </div>
+
+        {/* Search */}
         <div className="align-self-end text-center mb-3 width-100">
-          <button className="btn btn-success">Search</button>
+          <button className="btn btn-success" onClick={getQuestionRating}>
+            Search
+          </button>
         </div>
 
         <hr />
+
+        {/* Summary & Export */}
         <Box
           display="flex"
           justifyContent="space-between"
           alignItems="center"
           mb={2}
         >
-          <div>Feedback Submitted: 5</div>
-          <div>Feedback Remaining: 14</div>
-          <div>Rating: 2.3</div>
-          <Button variant="contained" color="primary">
+          <div>Feedback Submitted: {summary.submitted}</div>
+          <div>Feedback Remaining: {summary.remaining}</div>
+          <div>Rating: {summary.rating}</div>
+          <Button variant="contained" color="primary" onClick={exportPDF}>
             Export
           </Button>
         </Box>
 
-        <div style={{ height: 300, width: "100%" }}>
+        {/* DataGrid */}
+        <div style={{ height: 400, width: "100%" }}>
           <DataGrid rows={rows} columns={columns} pageSize={5} />
         </div>
       </Box>
