@@ -9,6 +9,13 @@ function StudentPendingFeedbackList() {
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [pagination, setPagination] = useState({
+        page: 0,
+        pageSize: 5
+    });
+    const [totalRowCount, setTotalRowCount] = useState(0);
+    console.log("rows", rows, totalRowCount);
+    
 
     const columns = [
     { field: 'feedbackGroupId', headerName: 'ID', width: 60 },
@@ -102,28 +109,33 @@ function StudentPendingFeedbackList() {
             }
 
             try {
-                const response = await fetch(`https://localhost:7056/api/Feedback/GetScheduledFeedbackByStudent/${studentRollNo}`);
+                const response = await fetch(`https://localhost:7056/api/Feedback/GetScheduledFeedbackByStudent/${studentRollNo}?page=${pagination.page + 1}&pageSize=${pagination.pageSize}`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
 
-                const submittedResponses = await fetch(`https://localhost:7056/api/Feedback/GetSubmittedFeedbackIdsByStudentId/${studentRollNo}`);
-                if(!submittedResponses.ok)
-                {
-                    throw new Error(`HTTP error! status: ${submittedResponses.status}`);
-                }
+                const scheduledData = data.data || [];
+                console.log("scheduledData", scheduledData);
+                
 
-                const submittedIds = await submittedResponses.json();
+                // const submittedResponses = await fetch(`https://localhost:7056/api/Feedback/GetSubmittedFeedbackIdsByStudentId/${studentRollNo}`);
+                // if(!submittedResponses.ok)
+                // {
+                //     throw new Error(`HTTP error! status: ${submittedResponses.status}`);
+                // }
+
+                // const submittedIds = await submittedResponses.json();
                 
-                const pendinData = data.filter(item => !submittedIds.includes(item.feedbackGroupId));
+                // const pendinData = scheduledData.filter(item => !submittedIds.includes(item.feedbackGroupId));
                 
-                const formattedData = pendinData.map(item => ({
+                const formattedData = scheduledData.map(item => ({
                     ...item,
                     id: item.feedbackGroupId 
                 }));
 
                 setRows(formattedData);
+                setTotalRowCount(data.totalCount);
             } catch (e) {
                 console.error("Failed to fetch pending feedbacks:", e);
                 setError("Failed to load data. Please try again later.");
@@ -133,7 +145,7 @@ function StudentPendingFeedbackList() {
         };
 
         fetchPendingFeedbacks();
-    }, []); 
+    }, [pagination]); 
 
     if (loading) {
         return (
@@ -159,12 +171,12 @@ function StudentPendingFeedbackList() {
                     rows={rows}
                     columns={columns}
                     getRowId={(row) => row.feedbackGroupId} 
-                    initialState={{
-                        pagination: {
-                            paginationModel: {
-                                pageSize: 5,
-                            },
-                        },
+                    paginationMode="server"
+                    rowCount={totalRowCount}
+                    paginationModel={pagination}
+                    onPaginationModelChange={(newModel) => {
+                        console.log("onPaginationModelChange called with:", newModel);
+                        setPagination(newModel);
                     }}
                     pageSizeOptions={[5]}
                     disableRowSelectionOnClick
