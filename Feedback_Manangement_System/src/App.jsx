@@ -20,7 +20,9 @@ import StudentPendingFeedbackList from './pages/Student/StudentPendingFeedbackLi
 import StudentFeedbackHistoryList from './pages/Student/StudentFeedbackHistoryList';
 import UpdateFeedbackForm from './pages/feedback/UpdateFeedbackForm';
 import SubmittedFeedbackForm from './pages/Student/SubmittedFeedbackForm';
-
+import AddCourse from './pages/Courses/Courses';
+import AddGroups from './pages/Groups/Groups';
+import AddModule from './pages/Modules/Modules';
 export const RoleContext = createContext();
 
 function App() {
@@ -70,6 +72,10 @@ function App() {
                 <Route path="feedback-dashboard" element={<FeedbackDashboard />} />
                 <Route path="faculty-feedback-summary" element={<Faculty_Feedback_summary />} />
                 <Route path="coursewise-report" element={<Coursewise_Report />} />
+                <Route path="add-course" element={<AddCourse />} /> 
+                <Route path="add-module" element={<AddModule />}/>
+                <Route path="add-group" element={<AddGroups />} />
+
               </Route>
               <Route element={<ProtectedRoute allowedRoles={["student"]}/>}>
                 <Route path="student-pending-feedbacklist" element={<StudentPendingFeedbackList />} />
