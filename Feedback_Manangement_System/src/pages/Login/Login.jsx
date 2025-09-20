@@ -93,16 +93,8 @@ function Login() {
               className='form-control'
             />
           </div>
-          {/* <div className='mb-3'>
-            <label>Password</label>
-            <input
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              type='password'
-              className='form-control'
-            />
-          </div> */}
-              <div className='mb-3' style={{ position: "relative" }}>
+         
+          <div className='mb-3' style={{ position: "relative" }}>
       <label>Password</label>
       <input
         value={password}
@@ -147,7 +139,7 @@ function Login() {
             </label>
           </div>
 
-          {/* 🔴 Error Message */}
+          {/* Error Message */}
           {error && (
             <div className="alert alert-danger text-center">{error}</div>
           )}
@@ -156,6 +148,10 @@ function Login() {
             <div className='mb-3'>
               <Link to="/forgot-password">Forgot Password?</Link>
             </div>
+            <p>
+                New user?{" "}
+                <Link to="/register-student">Register here</Link>
+            </p>
             <button
               className='btn btn-success'
               onClick={handleLogin}

@@ -106,6 +106,12 @@ function DashboardLayout() {
                                         Per-Faculty Feedback Summary
                                     </ListItem>
                                 </Collapse>
+                                 <ListItemButton onClick={() => navigate("/app/staff/add")}>
+                                    <ListItemIcon>
+                                        <ThumbUpAltIcon />
+                                    </ListItemIcon>
+                                    Add Staff
+                                </ListItemButton>
                             </>
                         )}
 
