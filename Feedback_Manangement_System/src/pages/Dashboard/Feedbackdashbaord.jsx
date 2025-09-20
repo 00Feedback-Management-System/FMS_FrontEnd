@@ -65,21 +65,27 @@ function FeedbackDashboard() {
     try {
       const response = await Api.get("Feedback/FeedbackDashboard-Rating");
       const mapped = response.data.map((item, index) => {
-        //const start = item.startDate ? new Date(item.startDate) : null;
-        const start = item.submittedAt ? new Date(item.submittedAt) : null;
-        //  const end = item.endDate ? new Date(item.endDate) : null;
-        const format = (d) => (d ? d.toLocaleDateString() : "");
+        const start = item.startDate ? new Date(item.startDate) : null;
+        const end = item.endDate ? new Date(item.endDate) : null;
+
+        // Format function (DD-MM-YYYY)
+        const format = (d) =>
+          d
+            ? `${d.getDate().toString().padStart(2, "0")}-${(d.getMonth() + 1)
+                .toString()
+                .padStart(2, "0")}-${d.getFullYear()}`
+            : "";
+
         const courseName = item.courseName || "";
         const moduleName = item.moduleName || "";
         const staffName = item.staffName || "";
 
         return {
-          id: `${item.feedbackId}-${index}`, // 🔑 unique key fix
-          // date:
-          //   start && end
-          //     ? `${format(start)} - ${format(end)}`
-          //     : format(start) || "",
-          date: format(start),
+          id: `${item.feedbackId}-${index}`, // unique key fix
+          date:
+            start && end
+              ? `${format(start)} to ${format(end)}`
+              : format(start) || "",
           course: courseName,
           courseNorm: courseName.toLowerCase().trim(),
           group: item.groupName || "",
@@ -88,7 +94,9 @@ function FeedbackDashboard() {
           faculty: staffName,
           facultyNorm: staffName.toLowerCase().trim(),
           session: item.session ?? "",
-          rating: item.staffRating ?? "",
+          rating: item.averageStaffRating
+            ? Number(item.averageStaffRating).toFixed(2)
+            : "",
           feedbacktype: item.feedbackTypeName || "",
         };
       });
