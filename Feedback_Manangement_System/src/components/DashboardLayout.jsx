@@ -106,7 +106,13 @@ function DashboardLayout() {
                                         Per-Faculty Feedback Summary
                                     </ListItem>
                                 </Collapse>
-                                <ListItemButton onClick={() => navigate("/app/add-module")}>
+                                  <ListItemButton onClick={() => navigate("/app/staff/add")}>
+                                    <ListItemIcon>
+                                        <ThumbUpAltIcon />
+                                    </ListItemIcon>
+                                    Add Staff
+                                </ListItemButton>
+                               <ListItemButton onClick={() => navigate("/app/add-module")}>
                                <ListItemIcon>
                                <LibraryAddIcon />
                                </ListItemIcon>
@@ -124,7 +130,6 @@ function DashboardLayout() {
                                </ListItemIcon>
                                 Add Group
                             </ListItemButton>
-
                             </>
                         )}
 

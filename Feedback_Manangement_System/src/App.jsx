@@ -20,9 +20,12 @@ import StudentPendingFeedbackList from './pages/Student/StudentPendingFeedbackLi
 import StudentFeedbackHistoryList from './pages/Student/StudentFeedbackHistoryList';
 import UpdateFeedbackForm from './pages/feedback/UpdateFeedbackForm';
 import SubmittedFeedbackForm from './pages/Student/SubmittedFeedbackForm';
+import StudentForm from './pages/Student/StudentForm';
+import StaffForm from './pages/Staff/StaffForm';
 import AddCourse from './pages/Courses/Courses';
 import AddGroups from './pages/Groups/Groups';
 import AddModule from './pages/Modules/Modules';
+
 export const RoleContext = createContext();
 
 function App() {
@@ -54,7 +57,9 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<Login />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<Forgot_Password />} />
+            <Route path="/register-student" element={<StudentForm />} />
 
             <Route path="/app" element={<Home />}>
               <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
@@ -66,6 +71,7 @@ function App() {
                 <Route path="schedule-feedback-list" element={<ScheduleFeedbackList />} />
                 <Route path="student-list/:feedbackGroupId" element={<StudentList />} />
                 <Route path="remaining/:feedbackGroupId" element={<StudentList />} />
+                <Route path="staff/add" element={<StaffForm />} />
                 <Route path="schedule-feedback-form" element={<ScheduleFeedbackForm />} />
                 <Route path="update-feedback-form/:feedbackId" element={<UpdateFeedbackForm />} />
                 <Route path="per-faculty-feedback-summary" element={<FacultyFeedbackSummary />} />
