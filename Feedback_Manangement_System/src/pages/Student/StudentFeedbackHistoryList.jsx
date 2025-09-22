@@ -10,6 +10,8 @@ function StudentFeedbackHistoryList() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const token = localStorage.getItem("token");
+
     const columns = [
     { field: 'feedbackGroupId', headerName: 'ID', width: 60 },
     {
@@ -108,7 +110,14 @@ function StudentFeedbackHistoryList() {
             }
 
             try {
-                const response = await fetch(`https://localhost:7056/api/Feedback/GetSubmittedFeedbackHistory/${studentRollNo}`);
+                const response = await fetch(`https://localhost:7056/api/Feedback/GetSubmittedFeedbackHistory/${studentRollNo}`,
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}` 
+                        }
+                    }
+                );
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }

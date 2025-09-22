@@ -3,6 +3,7 @@ import { Drawer, List, ListItem, ListItemIcon, ListItemText, Box, Toolbar, AppBa
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import LogoutIcon from '@mui/icons-material/Logout';
+import LibraryAddIcon from "@mui/icons-material/LibraryAdd";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import AddToPhotosIcon from '@mui/icons-material/AddToPhotos';

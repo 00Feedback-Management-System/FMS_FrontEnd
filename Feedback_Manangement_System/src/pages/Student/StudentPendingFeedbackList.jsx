@@ -15,6 +15,7 @@ function StudentPendingFeedbackList() {
     });
     const [totalRowCount, setTotalRowCount] = useState(0);
     console.log("rows", rows, totalRowCount);
+    const token = localStorage.getItem("token");
     
 
     const columns = [
@@ -109,7 +110,14 @@ function StudentPendingFeedbackList() {
             }
 
             try {
-                const response = await fetch(`https://localhost:7056/api/Feedback/GetScheduledFeedbackByStudent/${studentRollNo}?page=${pagination.page + 1}&pageSize=${pagination.pageSize}`);
+                const response = await fetch(`https://localhost:7056/api/Feedback/GetScheduledFeedbackByStudent/${studentRollNo}?page=${pagination.page + 1}&pageSize=${pagination.pageSize}`,
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}` 
+                        }
+                    }
+                );
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
