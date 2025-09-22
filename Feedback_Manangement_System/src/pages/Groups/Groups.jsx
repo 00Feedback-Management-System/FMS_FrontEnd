@@ -6,10 +6,15 @@ function CourseGroupManager() {
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState("");
   const [groups, setGroups] = useState([]); // holds both existing + new groups
-
+  const token = localStorage.getItem("token");
   // Fetch courses on load
   useEffect(() => {
-    Api.get("GetAllCourse").then((res) => {
+    Api.get("GetAllCourse", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }).then((res) => {
       setCourses(res.data);
     });
   }, []);
@@ -23,7 +28,12 @@ function CourseGroupManager() {
     if (!courseId) return;
 
     try {
-      const res = await Api.get(`Groups/ByCourse/${courseId}`);
+      const res = await Api.get(`Groups/ByCourse/${courseId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (res.data && res.data.length > 0) {
         // groups exist → load them into input
         setGroups(res.data.map((g) => g.group_name || g)); // handle string or object
@@ -67,7 +77,12 @@ function CourseGroupManager() {
     };
 
     try {
-      await Api.post("Groups/addGroups", payload);
+      await Api.post("Groups/addGroups", payload, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       alert("Groups saved successfully!");
     } catch (error) {
       console.error("Error saving groups", error);

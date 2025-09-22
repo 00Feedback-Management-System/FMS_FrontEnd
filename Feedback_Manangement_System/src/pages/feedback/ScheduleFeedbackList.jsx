@@ -6,13 +6,14 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+//import axios from "axios";
 import Api from "../../services/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function ScheduleFeedbackList() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const token = localStorage.getItem("token");
 
   const [paginationModel, setPaginationModel] = React.useState({
     page: 0,
@@ -24,7 +25,13 @@ export default function ScheduleFeedbackList() {
   // fetch function
   const fetchFeedbacks = async ({ page, pageSize }) => {
     const res = await Api.get(
-      `Feedback/GetFeedbackPaged?pageNumber=${page + 1}&pageSize=${pageSize}`
+      `Feedback/GetFeedbackPaged?pageNumber=${page + 1}&pageSize=${pageSize}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
     const { data, totalCount } = res.data;
 
@@ -32,7 +39,13 @@ export default function ScheduleFeedbackList() {
       (data || []).map(async (f) => {
         try {
           const summary = await Api.get(
-            `StudentApi/FeedbackSubmit/${f.feedbackGroupId}`
+            `StudentApi/FeedbackSubmit/${f.feedbackGroupId}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
           );
           return {
             ...f,
@@ -89,15 +102,20 @@ export default function ScheduleFeedbackList() {
     if (!window.confirm("Are you sure you want to delete this record?")) return;
 
     try {
-      await axios.delete(
-        `https://localhost:7056/api/Feedback/DeleteFeedbackGroup/${feedbackGroupId}`
-      );
+      await Api.delete(`Feedback/DeleteFeedbackGroup/${feedbackGroupId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       queryClient.invalidateQueries({ queryKey: ["feedbacks"] });
       alert("Record deleted successfully!");
     } catch (error) {
       console.error("Error deleting record:", error);
       const message =
-        error?.response?.data?.message || error?.message || "Failed to delete record.";
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to delete record.";
       alert(message);
     }
   };
@@ -124,7 +142,9 @@ export default function ScheduleFeedbackList() {
       headerName: "Group",
       flex: 1,
       renderCell: (params) =>
-        params.value && params.value.toString().trim() !== "" ? params.value : "-",
+        params.value && params.value.toString().trim() !== ""
+          ? params.value
+          : "-",
     },
     { field: "session", headerName: "Session", flex: 1 },
     {

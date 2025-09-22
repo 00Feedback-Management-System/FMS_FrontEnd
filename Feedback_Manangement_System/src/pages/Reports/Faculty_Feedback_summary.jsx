@@ -21,6 +21,8 @@ const FeedbackDashboard = () => {
 
   const [rows, setRows] = useState([]);
 
+  const token = localStorage.getItem("token");
+
   const columns = [
     { field: "id", headerName: "Sr.No", width: 90 },
     { field: "question", headerName: "Question", width: 450 },
@@ -37,7 +39,12 @@ const FeedbackDashboard = () => {
 
   const fetchFeedbacks = async () => {
     try {
-      const response = await Api.get("Feedback/FeedbackDashboard-Rating");
+      const response = await Api.get("Feedback/FeedbackDashboard-Rating", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = response.data || [];
       setFeedbacks(data);
     } catch (error) {
@@ -129,16 +136,25 @@ const FeedbackDashboard = () => {
   // -------------------as per search button click
   const getQuestionRating = async () => {
     try {
-      const response = await Api.post("Feedback/FacultyFeedbackSummary", {
-        staff_name: selectedFaculty,
-        module_name: selectedModule,
-        course_name: selectedCourse,
-        type_name: selectedFeedbackType,
-        date: getDateRange(),
-        feedbackTypeId: feedbackTypeId,
-        feedbackId: feedbackId,
-        feedbackGroupId: feedbackGroupId,
-      });
+      const response = await Api.post(
+        "Feedback/FacultyFeedbackSummary",
+        {
+          staff_name: selectedFaculty,
+          module_name: selectedModule,
+          course_name: selectedCourse,
+          type_name: selectedFeedbackType,
+          date: getDateRange(),
+          feedbackTypeId: feedbackTypeId,
+          feedbackId: feedbackId,
+          feedbackGroupId: feedbackGroupId,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       const data = response.data || {};
 
