@@ -34,7 +34,6 @@ function Login() {
       const response = await api.post('Login', {
         email,
         password,
-        role: role.toLowerCase()
       })
 
       if (response.data && response.data.message === "Login successful.") {
