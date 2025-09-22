@@ -27,6 +27,7 @@ function DashboardLayout() {
 
     const handleLogout = () => {
         localStorage.removeItem("user");
+        localStorage.removeItem("token");
         console.log("Logout Succesfull")
         navigate("/");
     }

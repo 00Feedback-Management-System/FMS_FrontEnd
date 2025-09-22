@@ -14,8 +14,7 @@ function StudentFeedbackForm() {
     const [questionsLoading, setQuestionsLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    console.log("Current State:", { questionsLoading, error, feedbackDataExists: !!feedbackData });
-    
+    const token = localStorage.getItem("token");
 
     useEffect(() => {
         if(!feedbackData)
@@ -28,7 +27,14 @@ function StudentFeedbackForm() {
         const fetchQuestions = async () => {
             try
             {
-                const response = await fetch(`https://localhost:7056/api/QuestionAnswer/GetAllQuestions/${feedbackData.feedbackTypeId}`);
+                const response = await fetch(`https://localhost:7056/api/QuestionAnswer/GetAllQuestions/${feedbackData.feedbackTypeId}`,
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}` 
+                        }
+                    }
+                );
                 if(!response.ok)
                 {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -74,9 +80,7 @@ function StudentFeedbackForm() {
                 return;
             }
 
-            const studentRollNo = studentData ? studentData.id : null;
-            console.log("studentRollNo", studentRollNo);
-            
+            const studentRollNo = studentData ? studentData.id : null;            
 
             if (!studentRollNo) {
                 toast.error("Could not find student ID. Please log in again.");
@@ -89,7 +93,6 @@ function StudentFeedbackForm() {
                 studentId: studentRollNo, 
                 answers: answers
             };
-            console.log("Submitting feedback:", feedbackSubmissionData);
 
             try
             {
