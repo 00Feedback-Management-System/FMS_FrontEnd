@@ -7,18 +7,28 @@ function AddModule() {
   const [courseId, setCourseId] = useState("");
   const [courses, setCourses] = useState([]);
   const [modules, setModules] = useState([]);
-
+const token = localStorage.getItem("token");
   useEffect(() => {
     axios
-      .get("https://localhost:7056/api/GetAllCourse")
+      .get("https://localhost:7056/api/GetAllCourse",{
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((res) => setCourses(res.data))
       .catch((err) => console.error("Error fetching courses:", err));
-  }, []);
+  }, [token]);
 
   
   const fetchModules = () => {
     axios
-      .get("https://localhost:7056/api/Modules")
+      .get("https://localhost:7056/api/Modules",{
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((res) => setModules(res.data))
       .catch((err) => console.error("Error fetching modules:", err));
   };
@@ -40,7 +50,10 @@ function AddModule() {
 };
     try {
       await axios.post("https://localhost:7056/api/Modules", newModule, {
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       });
       alert("✅ Module added successfully!");
       setModuleName("");
