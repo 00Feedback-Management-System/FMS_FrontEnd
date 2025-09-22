@@ -39,12 +39,14 @@ function Login() {
 
       if (response.data && response.data.message === "Login successful.") {
         const user = response.data?.users || response.data?.user;
-        console.log("User", user);
-        if(!user)
+        const token = response.data?.token;
+        if(!user || !token)
         {
-          setError("User data not found.");
+          setError("User data or token not found.");
           return;
         }
+        console.log("user:", user);
+
         setRole(user.role.toLowerCase());
         // ✅ If remember me checked → save credentials
         if (remember) {
@@ -60,6 +62,7 @@ function Login() {
 
         // ✅ Save user info in localStorage (for session)
         localStorage.setItem("user", JSON.stringify(user))
+        localStorage.setItem("token", token)
 
         if (user.role.toLowerCase() === "admin") {
           navigate("/app/feedback-dashboard")
@@ -114,19 +117,6 @@ function Login() {
         {showPassword ? <FaEyeSlash /> : <FaEye />}
       </span>
     </div>
-          <div className='mb-3'>
-            <label>Role</label>
-            <select
-              className='form-select'
-              value={role}
-              onChange={(e) => setLoginRole(e.target.value)}
-            >
-              <option value="student">Student</option>
-              <option value="admin">Admin</option>
-              <option value="staff">Faculty</option>
-              
-            </select>
-          </div>
           <div className='mb-3'>
             <input
               type='checkbox'
