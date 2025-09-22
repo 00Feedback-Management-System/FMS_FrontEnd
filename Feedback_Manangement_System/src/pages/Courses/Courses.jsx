@@ -10,11 +10,16 @@ function AddCourse() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState([]);
-
+const token = localStorage.getItem("token");
   
   const fetchCourses = () => {
     axios
-      .get("https://localhost:7056/api/GetAllCourse")
+      .get("https://localhost:7056/api/GetAllCourse",{
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((res) => {
         setCourses(res.data);
       })
@@ -25,7 +30,7 @@ function AddCourse() {
 
   useEffect(() => {
     fetchCourses();
-  }, []);
+  }, [token]);
 
  
   const handleSubmit = async (e) => {
@@ -43,7 +48,10 @@ function AddCourse() {
 
     try {
       await axios.post("https://localhost:7056/api/AddCourse", newCourse, {
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       alert("✅ Course added successfully!");

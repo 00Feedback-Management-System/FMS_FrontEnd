@@ -21,10 +21,16 @@ export default function CourseWiseReport() {
   const [courseFilter, setCourseFilter] = useState("");
   const [moduleFilter, setModuleFilter] = useState("");
   const [feedbackFilter, setFeedbackFilter] = useState("");
-
+const token = localStorage.getItem("token");
  
   useEffect(() => {
-    Api.get("Feedback/CourseWiseReportWithRating")
+
+    Api.get("Feedback/CourseWiseReportWithRating",{
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((res) => {
         const flattened = [];
         let idCounter = 1;
