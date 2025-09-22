@@ -172,7 +172,7 @@ function StaffForm() {
 
           {/* Submit */}
           <div className="d-grid">
-            <button type="submit" className="btn btn-success btn-lg">
+            <button type="submit" className="btn btn-success">
               Create Staff
             </button>
           </div>
