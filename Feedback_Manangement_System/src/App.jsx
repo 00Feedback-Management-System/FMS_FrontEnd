@@ -8,7 +8,7 @@ import StudentFeedbackForm from './pages/Student/StudentFeedbackForm';
 import StudentList from "./pages/feedback/StudentList";
 import FeedbackTypeForm from './pages/feedback/FeedbackTypeForm';
 import ScheduleFeedbackForm from './pages/feedback/ScheduleFeedbackForm';
-import FacultyFeedbackSummary from './pages/feedback/FacultyFeedbackSummary';
+import FacultyFeedbackSummary from './pages/feedback/PerFacultyFeedbackSummary';
 import FeedbackDashboard from './pages/Dashboard/Feedbackdashbaord';
 import Login from './pages/Login/Login';
 import Faculty_Feedback_summary from './pages/Reports/Faculty_Feedback_summary';
