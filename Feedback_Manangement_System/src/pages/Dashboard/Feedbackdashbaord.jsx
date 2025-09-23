@@ -11,7 +11,7 @@ function FeedbackDashboard() {
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedFeedbackType, setSelectedFeedbackType] = useState("");
   const [rows, setRows] = useState([]);
-  const token = localStorage.getItem("token");
+  // const token = localStorage.getItem("token");
 
   const token = localStorage.getItem("token");
   // Columns
@@ -33,7 +33,7 @@ function FeedbackDashboard() {
 
   const fetchFeedbacks = async () => {
     try {
-       const response = await Api.get("FeedbackReport/course-feedback-report", {
+      const response = await Api.get("FeedbackReport/course-feedback-report", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -75,15 +75,12 @@ function FeedbackDashboard() {
 
   const fetchFeedbackTypes = async () => {
     try {
-
-      const response = await Api.get("FeedbackType/GetFeedbackType",
-        {
-          headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}` 
-                    }
-      }
-      );
+      const response = await Api.get("FeedbackType/GetFeedbackType", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       setFeedbackTypes(response.data || []);
     } catch (error) {
