@@ -4,6 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Box from "@mui/material/Box";
 import { CircularProgress, Alert } from "@mui/material";
+import Api from "../../services/api";
 
 function StudentFeedbackForm() {
     const location = useLocation();
@@ -27,7 +28,8 @@ function StudentFeedbackForm() {
         const fetchQuestions = async () => {
             try
             {
-                const response = await fetch(`https://localhost:7056/api/QuestionAnswer/GetAllQuestions/${feedbackData.feedbackTypeId}`,
+                const response = await Api.get(
+                    `QuestionAnswer/GetAllQuestions/${feedbackData.feedbackTypeId}`,
                     {
                         headers: {
                             "Content-Type": "application/json",
@@ -35,12 +37,8 @@ function StudentFeedbackForm() {
                         }
                     }
                 );
-                if(!response.ok)
-                {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
 
-                const data = await response.json();
+                const data = await response.data;
                 setQuestions(data);
             }
             catch(e)
@@ -96,18 +94,16 @@ function StudentFeedbackForm() {
 
             try
             {
-                const response = await fetch('https://localhost:7056/api/QuestionAnswer/SubmitFeedbackAnswers',{
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(feedbackSubmissionData)
-                });
-
-                if(!response.ok)
-                {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                const response = await Api.post(
+                    'QuestionAnswer/SubmitFeedbackAnswers',
+                    feedbackSubmissionData,
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            "Authorization": `Bearer ${token}`
+                        },
+                    }
+                );
 
                 toast.success("Feedback submitted successfully!");
                 setTimeout(() => {

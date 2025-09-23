@@ -3,85 +3,84 @@ import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
 import { Typography, CircularProgress, Alert } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
+import Api from '../../services/api';
 
 function StudentPendingFeedbackList() {
     const navigate = useNavigate();
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [pagination, setPagination] = useState({
+    const [paginationModel, setPaginationModel] = useState({
         page: 0,
         pageSize: 5
     });
     const [totalRowCount, setTotalRowCount] = useState(0);
-    console.log("rows", rows, totalRowCount);
+
     const token = localStorage.getItem("token");
-    
 
     const columns = [
-    { field: 'feedbackGroupId', headerName: 'ID', width: 60 },
-    {
-        field: 'feedbackTypeName', // Match API response
-        headerName: 'Type',
-        sortable: false,
-        width: 280,
-        renderHeader: () => (
-            <span style={{ color: "black", fontWeight: "bold" }}>Type</span>
-        ),
-    },
-    {
-        field: 'courseName', // Match API response
-        headerName: 'Course',
-        width: 120,
-        renderHeader: () => (
-            <span style={{ color: "black", fontWeight: "bold" }}>Course</span>
-        ),
-    },
-    {
-        field: 'moduleName', // Match API response
-        headerName: 'Module',
-        width: 100,
-        renderHeader: () => (
-            <span style={{ color: "black", fontWeight: "bold" }}>Module</span>
-        ),
-    },
-    {
-        field: 'staffName',
-        headerName: 'Faculty',
-        width: 150,
-        renderHeader: () => (
-            <span style={{ color: "black", fontWeight: "bold" }}>Faculty</span>
-        ),
-    },
-    {
-        field: 'session',
-        headerName: 'Session',
-        width: 100,
-        renderHeader: () => (
-            <span style={{ color: "black", fontWeight: "bold" }}>Session</span>
-        ),
-    },
-    {
-        field: "actions",
-        headerName: "Action",
-        width: 100,
-        renderHeader: () => (
-            <span style={{ color: "black", fontWeight: "bold" }}>Action</span>
-        ),
-        renderCell: (params) => (
-            <Typography
-                color="primary"
-                style={{ cursor: 'pointer'}}
-                onClick={() => handleOpenFill(params.row)}
-            >
-                Open&Fill
-            </Typography>
-        ),
-    }
-];
+        { field: 'feedbackGroupId', headerName: 'ID', width: 60 },
+        {
+            field: 'feedbackTypeName', // Match API response
+            headerName: 'Type',
+            sortable: false,
+            width: 280,
+            renderHeader: () => (
+                <span style={{ color: "black", fontWeight: "bold" }}>Type</span>
+            ),
+        },
+        {
+            field: 'courseName', // Match API response
+            headerName: 'Course',
+            width: 120,
+            renderHeader: () => (
+                <span style={{ color: "black", fontWeight: "bold" }}>Course</span>
+            ),
+        },
+        {
+            field: 'moduleName', // Match API response
+            headerName: 'Module',
+            width: 100,
+            renderHeader: () => (
+                <span style={{ color: "black", fontWeight: "bold" }}>Module</span>
+            ),
+        },
+        {
+            field: 'staffName',
+            headerName: 'Faculty',
+            width: 150,
+            renderHeader: () => (
+                <span style={{ color: "black", fontWeight: "bold" }}>Faculty</span>
+            ),
+        },
+        {
+            field: 'session',
+            headerName: 'Session',
+            width: 100,
+            renderHeader: () => (
+                <span style={{ color: "black", fontWeight: "bold" }}>Session</span>
+            ),
+        },
+        {
+            field: "actions",
+            headerName: "Action",
+            width: 100,
+            renderHeader: () => (
+                <span style={{ color: "black", fontWeight: "bold" }}>Action</span>
+            ),
+            renderCell: (params) => (
+                <Typography
+                    color="primary"
+                    style={{ cursor: 'pointer'}}
+                    onClick={() => handleOpenFill(params.row)}
+                >
+                    Open&Fill
+                </Typography>
+            ),
+        }
+    ];
 
     const handleOpenFill = (row) => {
-        console.log("row", row);
         navigate('/app/student-feedback-form', {state: {feedbackData: row}})
     };
 
@@ -89,6 +88,7 @@ function StudentPendingFeedbackList() {
         const fetchPendingFeedbacks = async () => {
             setLoading(true);
             setError(null);
+
             let studentData = null;
             try {
                 const loginStudent = localStorage.getItem('user');
@@ -110,7 +110,8 @@ function StudentPendingFeedbackList() {
             }
 
             try {
-                const response = await fetch(`https://localhost:7056/api/Feedback/GetScheduledFeedbackByStudent/${studentRollNo}?page=${pagination.page + 1}&pageSize=${pagination.pageSize}`,
+                const response = await Api.get(
+                    `Feedback/GetScheduledFeedbackByStudent/${studentRollNo}?page=${paginationModel.page + 1}&pageSize=${paginationModel.pageSize}`,
                     {
                         headers: {
                             "Content-Type": "application/json",
@@ -118,25 +119,10 @@ function StudentPendingFeedbackList() {
                         }
                     }
                 );
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
-
-                const scheduledData = data.data || [];
-                console.log("scheduledData", scheduledData);
                 
+                const data = await response.data;
+                const scheduledData = data.data || [];                
 
-                // const submittedResponses = await fetch(`https://localhost:7056/api/Feedback/GetSubmittedFeedbackIdsByStudentId/${studentRollNo}`);
-                // if(!submittedResponses.ok)
-                // {
-                //     throw new Error(`HTTP error! status: ${submittedResponses.status}`);
-                // }
-
-                // const submittedIds = await submittedResponses.json();
-                
-                // const pendinData = scheduledData.filter(item => !submittedIds.includes(item.feedbackGroupId));
-                
                 const formattedData = scheduledData.map(item => ({
                     ...item,
                     id: item.feedbackGroupId 
@@ -153,27 +139,18 @@ function StudentPendingFeedbackList() {
         };
 
         fetchPendingFeedbacks();
-    }, [pagination]); 
-
-    if (loading) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                <CircularProgress />
-            </Box>
-        );
-    }
-
-    if (error) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                <Alert severity="error">{error}</Alert>
-            </Box>
-        );
-    }
+    }, [paginationModel]); 
 
     return (
         <div className='container'>
             <h2 className="table-header text-center mt-3">Pending Feedback's</h2>
+
+            {error && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                    <Alert severity="error">{error}</Alert>
+                </Box>
+            )}
+
             <Box sx={{ height: 400, width: '99%', mt: 5 }}>
                 <DataGrid
                     rows={rows}
@@ -181,13 +158,11 @@ function StudentPendingFeedbackList() {
                     getRowId={(row) => row.feedbackGroupId} 
                     paginationMode="server"
                     rowCount={totalRowCount}
-                    paginationModel={pagination}
-                    onPaginationModelChange={(newModel) => {
-                        console.log("onPaginationModelChange called with:", newModel);
-                        setPagination(newModel);
-                    }}
+                    paginationModel={paginationModel}
+                    onPaginationModelChange={setPaginationModel}
                     pageSizeOptions={[5]}
                     disableRowSelectionOnClick
+                    loading={loading}
                 />
             </Box>
         </div>

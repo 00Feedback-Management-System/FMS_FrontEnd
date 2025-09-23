@@ -3,12 +3,15 @@ import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
 import { Typography, CircularProgress, Alert } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
+import Api from '../../services/api';
 
 function StudentFeedbackHistoryList() {
     const navigate = useNavigate();
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [rowCount, setRowCount] = useState(0);
+    const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 });
 
     const token = localStorage.getItem("token");
 
@@ -110,18 +113,21 @@ function StudentFeedbackHistoryList() {
             }
 
             try {
-                const response = await fetch(`https://localhost:7056/api/Feedback/GetSubmittedFeedbackHistory/${studentRollNo}`,
+                const response = await Api.get(
+                    `Feedback/GetSubmittedFeedbackHistory/${studentRollNo}`,
                     {
+                        params: {
+                            page: paginationModel.page + 1,
+                            pageSize: paginationModel.pageSize
+                        },
                         headers: {
                             "Content-Type": "application/json",
                             "Authorization": `Bearer ${token}` 
                         }
                     }
                 );
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
+                
+                const { data, totalCount } = response.data;
                 
                 const formattedData = data.map(item => ({
                     ...item,
@@ -129,6 +135,7 @@ function StudentFeedbackHistoryList() {
                 }));
 
                 setRows(formattedData);
+                setRowCount(totalCount);
             } catch (e) {
                 console.error("Failed to fetch pending feedbacks:", e);
                 setError("Failed to load data. Please try again later.");
@@ -138,15 +145,7 @@ function StudentFeedbackHistoryList() {
         };
 
         fetchSubmittedFeedbacks();
-    }, []); 
-
-    if (loading) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                <CircularProgress />
-            </Box>
-        );
-    }
+    }, [paginationModel, token]); 
 
     if (error) {
         return (
@@ -164,15 +163,19 @@ function StudentFeedbackHistoryList() {
                     rows={rows}
                     columns={columns}
                     getRowId={(row) => row.feedbackGroupId}
-                    initialState={{
-                        pagination: {
-                            paginationModel: {
-                                pageSize: 5,
-                            },
-                        },
-                    }}
+                    pagination
+                    paginationMode="server"
+                    rowCount={rowCount}
                     pageSizeOptions={[5]}
+                    paginationModel={paginationModel}
+                    onPaginationModelChange={setPaginationModel}
                     disableRowSelectionOnClick
+                    initialState={{
+                        sorting: {
+                            sortModel: [{field: "feedbackGroupId", sort: "desc"}]
+                        }
+                    }}
+                    loading={loading} 
                 />
             </Box>
         </div>
