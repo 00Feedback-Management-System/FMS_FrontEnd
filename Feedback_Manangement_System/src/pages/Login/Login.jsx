@@ -46,7 +46,7 @@ function Login() {
         // console.log("user:", user);
 
         setRole(user.role.toLowerCase());
-        // ✅ If remember me checked → save credentials
+        // If remember me checked → save credentials
         if (remember) {
           localStorage.setItem("rememberEmail", email);
           localStorage.setItem("rememberPassword", password);

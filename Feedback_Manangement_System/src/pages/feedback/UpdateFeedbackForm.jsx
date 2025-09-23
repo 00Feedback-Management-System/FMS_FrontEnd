@@ -8,6 +8,7 @@ import Api from "../../services/api";
 function UpdateFeedbackForm() {
   const { feedbackId } = useParams();
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   const [courses, setCourses] = useState([]);
   const [modules, setModules] = useState([]);
@@ -49,7 +50,14 @@ function UpdateFeedbackForm() {
         setModules([]);
         return [];
       }
-      const response = await Api.get(`Modules/ByCourse/${courseId}`);
+      const response = await Api.get(`Modules/ByCourse/${courseId}`,
+        {
+          headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` 
+                    }
+         }
+      );
       const data = response.data || [];
       setModules(data);
       return data;
@@ -71,7 +79,14 @@ function UpdateFeedbackForm() {
 
   const fetchGroupsByCourse = async (courseId) => {
     try {
-      const response = await Api.get(`Groups/ByCourse/${courseId}`);
+      const response = await Api.get(`Groups/ByCourse/${courseId}`,
+        {
+          headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` 
+                    }
+         }
+      );
       return response.data || [];
     } catch (error) {
       console.error("Failed to load groups:", error);
@@ -93,7 +108,14 @@ function UpdateFeedbackForm() {
   // --- Fetch existing feedback details and populate form
   const fetchFeedbackDetails = async () => {
     try {
-      const response = await Api.get(`Feedback/GetByFeedback/${feedbackId}`);
+      const response = await Api.get(`Feedback/GetByFeedback/${feedbackId}`,
+        {
+          headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` 
+                    }
+         }
+      );
       const feedback = response.data;
 
       if (!feedback) return;
@@ -170,7 +192,14 @@ function UpdateFeedbackForm() {
         setFeedbackTypes([]);
         return;
       }
-      const response = await Api.get(`FeedbackType/ByGroup/${type}`);
+      const response = await Api.get(`FeedbackType/ByGroup/${type}`,
+        {
+          headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` 
+                    }
+         }
+      );
       setFeedbackTypes(response.data || []);
     } catch (error) {
       console.error("Failed to load feedback types:", error);
@@ -236,7 +265,13 @@ function UpdateFeedbackForm() {
     };
 
     try {
-      await Api.put(`Feedback/Update/${feedbackId}`, payload);
+      await Api.put(`Feedback/Update/${feedbackId}`, payload,
+        {
+          headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` 
+                    }
+         });
       alert("Feedback updated successfully!");
       navigate("/app/schedule-feedback-list");
     } catch (error) {

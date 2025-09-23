@@ -5,6 +5,8 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 function StaffForm() {
   const [staffroles, setStaffroles] = useState([]);
   const [showPassword, setShowPassword] = useState(false); //for toggle
+  const token = localStorage.getItem("token");
+
   const [formData, setFormData] = useState({
     staffrole_id: "",
     first_name: "",
@@ -16,7 +18,14 @@ function StaffForm() {
 
   // Fetch staff roles on load
   useEffect(() => {
-    Api.get("staff/GetStaffRoles")
+    Api.get("staff/GetStaffRoles",
+      {
+          headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` 
+                    }
+      }
+    )
       .then((res) => setStaffroles(res.data))
       .catch((err) => console.error("Error fetching staff roles:", err));
   }, []);
@@ -49,7 +58,9 @@ function StaffForm() {
 
     try {
       const res = await Api.post("staff/addStaff", data, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: { "Content-Type": "multipart/form-data",
+                    "Authorization": `Bearer ${token}`
+         },
       });
       alert("Staff created successfully!");
       console.log(res.data);
