@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Typography, CircularProgress, Alert, Button } from '@mui/material';
+import Api from '../../services/api';
 
 function SubmittedFeedbackForm() {
     const location = useLocation();
@@ -23,10 +24,12 @@ function SubmittedFeedbackForm() {
 
             setLoading(true);
             setError(null);
+
             const studentRollNo = JSON.parse(localStorage.getItem('user'))?.id;
 
             try {
-                const response = await fetch(`https://localhost:7056/api/Feedback/GetSubmittedFeedbackDetailsForView/${feedbackData.feedbackGroupId}/${studentRollNo}`,
+                const response = await Api.get(
+                    `Feedback/GetSubmittedFeedbackDetailsForView/${feedbackData.feedbackGroupId}/${studentRollNo}`,
                     {
                         headers: {
                             "Content-Type": "application/json",
@@ -34,10 +37,13 @@ function SubmittedFeedbackForm() {
                         }
                     }
                 );
-                if (!response.ok) {
-                    throw new Error('Failed to fetch submitted feedback details.');
+                
+                const data = await response.data;
+
+                if (!data || !data.answers) {
+                    throw new Error("Invalid response format.");
                 }
-                const data = await response.json();
+                
                 setAnswers(data.answers);
             } catch (e) {
                 console.error("Error fetching submitted feedback data:", e);
