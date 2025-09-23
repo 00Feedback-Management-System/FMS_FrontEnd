@@ -13,6 +13,7 @@ function FeedbackDashboard() {
   const [rows, setRows] = useState([]);
   const token = localStorage.getItem("token");
 
+  const token = localStorage.getItem("token");
   // Columns
   const columns = [
     { field: "date", headerName: "Date", flex: 1 },
@@ -20,7 +21,7 @@ function FeedbackDashboard() {
     { field: "feedbacktype", headerName: "Feedback Type", flex: 1 },
     { field: "group", headerName: "Group", flex: 1 },
     { field: "sessions", headerName: "Sessions", flex: 1 },
-    { field: "rating", headerName: "Rating", flex: 1 }
+    { field: "rating", headerName: "Rating", flex: 1 },
   ];
 
   // Fetch on mount
@@ -32,14 +33,13 @@ function FeedbackDashboard() {
 
   const fetchFeedbacks = async () => {
     try {
-      const response = await Api.get("FeedbackReport/course-feedback-report",
-        {
-          headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}` 
-                    }
-      }
-      );
+       const response = await Api.get("FeedbackReport/course-feedback-report", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       const mapped = response.data.map((item, index) => {
         const d = item.date ? new Date(item.date) : null;
         const formattedDate = d
@@ -55,7 +55,7 @@ function FeedbackDashboard() {
           feedbacktype: item.feedbackTypeName,
           group: item.groups?.toLowerCase() === "single" ? "Theory" : "Lab",
           sessions: item.sessions ?? 0,
-          rating: item.rating ? Number(item.rating).toFixed(2) : ""
+          rating: item.rating ? Number(item.rating).toFixed(2) : "",
         };
       });
       setRows(mapped);
@@ -75,6 +75,7 @@ function FeedbackDashboard() {
 
   const fetchFeedbackTypes = async () => {
     try {
+
       const response = await Api.get("FeedbackType/GetFeedbackType",
         {
           headers: {
@@ -83,6 +84,7 @@ function FeedbackDashboard() {
                     }
       }
       );
+
       setFeedbackTypes(response.data || []);
     } catch (error) {
       console.error("Failed to load feedback types:", error);
@@ -103,7 +105,8 @@ function FeedbackDashboard() {
         row.feedbacktype.toLowerCase() ===
           feedbackTypes
             .find(
-              (ft) => String(ft.feedback_type_id) === String(selectedFeedbackType)
+              (ft) =>
+                String(ft.feedback_type_id) === String(selectedFeedbackType)
             )
             ?.feedback_type_title.toLowerCase();
 

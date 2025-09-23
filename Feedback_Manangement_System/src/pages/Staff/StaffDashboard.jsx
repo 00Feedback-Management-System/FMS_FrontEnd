@@ -128,11 +128,17 @@ const handleDownloadFullPdf = () => {
   // Fetch scheduled feedback for logged-in staff
   useEffect(() => {
   const user = JSON.parse(localStorage.getItem("user"));
+  const token = localStorage.getItem("token");
   if (!user || !user.id) return;
 
   const fetchScheduledFeedback = async () => {
     try {
-      const response = await Api.get(`/staff/${user.id}/scheduledFeedback`);
+      const response = await Api.get(`/staff/${user.id}/scheduledFeedback`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // 👈 add token here
+          },
+        });;
 
       // Use backend rating directly
       const feedbackData = response.data.map((f, index) => ({

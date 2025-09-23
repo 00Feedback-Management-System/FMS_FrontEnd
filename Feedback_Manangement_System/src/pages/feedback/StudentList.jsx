@@ -22,15 +22,20 @@ export default function StudentList() {
   const [rows, setRows] = useState([]);
 
   const isSubmittedPage = location.pathname.includes("student-list");
-
+  const token = localStorage.getItem("token");
   useEffect(() => {
     const fetchData = async () => {
       try {
         const endpoint = isSubmittedPage
-          ? `StudentApi/Submitted/${feedbackGroupId}`
+          ? `StudentApi/Submitted/${feedbackGroupId} `
           : `StudentApi/NotSubmitted/${feedbackGroupId}`;
 
-        const res = await Api.get(endpoint);
+        const res = await Api.get(endpoint, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         const dataWithIds = res.data.map((s, index) => ({
           id: index + 1,
@@ -46,7 +51,7 @@ export default function StudentList() {
     fetchData();
   }, [feedbackGroupId, isSubmittedPage]);
 
-    const exportPDF = () => {
+  const exportPDF = () => {
     if (!rows || rows.length === 0) {
       alert("No data available to export");
       return;
@@ -55,7 +60,13 @@ export default function StudentList() {
     console.log("Exporting rows:", rows); // ✅ check if data is coming
 
     const doc = new jsPDF();
-    const tableColumn = ["Roll No", "First Name", "Last Name", "Email ID", "Group Name"];
+    const tableColumn = [
+      "Roll No",
+      "First Name",
+      "Last Name",
+      "Email ID",
+      "Group Name",
+    ];
     const tableRows = [];
 
     rows.forEach((row) => {
@@ -88,7 +99,6 @@ export default function StudentList() {
       isSubmittedPage ? "filled_students.pdf" : "remaining_students.pdf"
     );
   };
-
 
   return (
     <div className="container">

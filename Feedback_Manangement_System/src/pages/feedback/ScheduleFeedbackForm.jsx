@@ -13,6 +13,8 @@ function ScheduleFeedbackForm() {
   const [feedbackTypes, setFeedbackTypes] = useState([]);
   const [groups, setGroups] = useState([]); // groups loaded for selected course
 
+  const token = localStorage.getItem("token");
+
   const [formData, setFormData] = useState({
     startDate: "",
     endDate: "",
@@ -35,14 +37,19 @@ function ScheduleFeedbackForm() {
 
   useEffect(() => {
     fetchCourses();
-    
+
     fetchFaculties();
     fetchFeedbackTypes();
   }, []);
 
   const fetchFeedbackTypes = async () => {
     try {
-      const response = await Api.get("FeedbackType/GetFeedbackType");
+      const response = await Api.get("FeedbackType/GetFeedbackType", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setFeedbackTypes(response.data);
     } catch (error) {
       console.error("Failed to load feedback types:", error);
@@ -58,20 +65,24 @@ function ScheduleFeedbackForm() {
     }
   };
 
- const fetchModulesByCourse = async (courseId) => {
-  try {
-    if (!courseId) {
+  const fetchModulesByCourse = async (courseId) => {
+    try {
+      if (!courseId) {
+        setModules([]);
+        return;
+      }
+      const response = await Api.get(`Modules/ByCourse/${courseId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setModules(response.data);
+    } catch (error) {
+      console.error("Failed to load modules:", error);
       setModules([]);
-      return;
     }
-    const response = await Api.get(`Modules/ByCourse/${courseId}`);
-    setModules(response.data);
-  } catch (error) {
-    console.error("Failed to load modules:", error);
-    setModules([]);
-  }
-};
-
+  };
 
   const fetchFaculties = async () => {
     try {
@@ -85,7 +96,12 @@ function ScheduleFeedbackForm() {
   // fetch groups by course
   const fetchGroupsByCourse = async (courseId) => {
     try {
-      const response = await Api.get(`Groups/ByCourse/${courseId}`);
+      const response = await Api.get(`Groups/ByCourse/${courseId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       // map groups from backend into local state with staffId empty
       const mappedGroups = response.data.map((g) => ({
         groupId: g.group_id,
@@ -114,7 +130,7 @@ function ScheduleFeedbackForm() {
     if (name === "courseId") {
       if (value) {
         fetchGroupsByCourse(value);
-        fetchModulesByCourse(value);  // ✅ fetch modules for selected course
+        fetchModulesByCourse(value); // ✅ fetch modules for selected course
       } else {
         setGroups([]);
         setModules([]);
@@ -125,21 +141,18 @@ function ScheduleFeedbackForm() {
   // handle staff selection for group row
   const handleStaffSelect = (groupId, staffId) => {
     setGroups((prev) =>
-      prev.map((g) =>
-        g.groupId === groupId ? { ...g, staffId: staffId } : g
-      )
+      prev.map((g) => (g.groupId === groupId ? { ...g, staffId: staffId } : g))
     );
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    
-   // Validate date order
-  if (new Date(formData.startDate) > new Date(formData.endDate)) {
-    alert("Start Date cannot be greater than End Date!");
-    return;
-  }
+    // Validate date order
+    if (new Date(formData.startDate) > new Date(formData.endDate)) {
+      alert("Start Date cannot be greater than End Date!");
+      return;
+    }
 
     const selectedFeedbackType = feedbackTypes.find(
       (t) => t.feedback_type_id === Number(formData.feedbackTypeId)
@@ -176,7 +189,12 @@ function ScheduleFeedbackForm() {
     };
 
     try {
-      await Api.post("Feedback/Schedule", payload);
+      await Api.post("Feedback/Schedule", payload, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       alert("Feedback scheduled successfully!");
       navigate("/app/schedule-feedback-list");
     } catch (error) {
@@ -327,49 +345,50 @@ function ScheduleFeedbackForm() {
                   <th>Staff Member</th>
                 </tr>
               </thead>
-<tbody>
-  {groups.map((group, index) => {
-    // Track already selected staff (except current row to allow reselect)
-    const selectedStaffIds = groups
-      .map((g, i) => (i !== index ? g.staffId : null))
-      .filter((id) => id !== null);
+              <tbody>
+                {groups.map((group, index) => {
+                  // Track already selected staff (except current row to allow reselect)
+                  const selectedStaffIds = groups
+                    .map((g, i) => (i !== index ? g.staffId : null))
+                    .filter((id) => id !== null);
 
-    return (
-      <tr key={group.groupId}>
-        <td>{group.groupName}</td>
-        <td>
-          <select
-            className="form-select"
-            value={group.staffId || ""}
-            onChange={(e) => {
-              const newGroups = [...groups];
-              newGroups[index].staffId = parseInt(e.target.value);
-              setGroups(newGroups);
-            }}
-            required
-          >
-            <option value="">Select Staff</option>
-            {faculties
-              .filter((fac) => !selectedStaffIds.includes(fac.staff_id)) // ✅ Prevent duplicates
-              .map((fac) => (
-                <option key={fac.staff_id} value={fac.staff_id}>
-                  {fac.first_name} {fac.last_name}
-                </option>
-              ))}
-          </select>
-        </td>
-      </tr>
-    );
-  })}
-  {groups.length === 0 && (
-    <tr>
-      <td colSpan="2" className="text-center">
-        No Groups available
-      </td>
-    </tr>
-  )}
-</tbody>
-
+                  return (
+                    <tr key={group.groupId}>
+                      <td>{group.groupName}</td>
+                      <td>
+                        <select
+                          className="form-select"
+                          value={group.staffId || ""}
+                          onChange={(e) => {
+                            const newGroups = [...groups];
+                            newGroups[index].staffId = parseInt(e.target.value);
+                            setGroups(newGroups);
+                          }}
+                          required
+                        >
+                          <option value="">Select Staff</option>
+                          {faculties
+                            .filter(
+                              (fac) => !selectedStaffIds.includes(fac.staff_id)
+                            ) // ✅ Prevent duplicates
+                            .map((fac) => (
+                              <option key={fac.staff_id} value={fac.staff_id}>
+                                {fac.first_name} {fac.last_name}
+                              </option>
+                            ))}
+                        </select>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {groups.length === 0 && (
+                  <tr>
+                    <td colSpan="2" className="text-center">
+                      No Groups available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
             </table>
           </div>
         )}
