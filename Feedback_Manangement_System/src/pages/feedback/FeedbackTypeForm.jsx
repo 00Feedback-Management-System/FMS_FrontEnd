@@ -8,6 +8,7 @@ function FeedbackTypeForm() {
   const { id } = useParams();
   const location = useLocation();
   const isUpdate = Boolean(id);
+  const token = localStorage.getItem("token");
 
   const [formData, setFormData] = useState({
     feedbackTypeTitle: "",
@@ -21,7 +22,7 @@ function FeedbackTypeForm() {
 
   const [questions, setQuestions] = useState([]);
 
-  // ✅ Restore from AddQuestionForm if navigated with state
+  // Restore from AddQuestionForm if navigated with state
   useEffect(() => {
     if (location.state?.formData) {
       setFormData(location.state.formData);
@@ -34,7 +35,14 @@ function FeedbackTypeForm() {
   // ✅ Fetch only if updating and NOT coming back from AddQuestionForm
   useEffect(() => {
     if (isUpdate && !location.state) {
-      Api.get(`FeedbackType/${id}`)
+      Api.get(`FeedbackType/${id}`,
+        {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}` 
+                        }
+        }
+      )
         .then((res) => {
           const data = res.data;
           setFormData({
@@ -84,10 +92,24 @@ function FeedbackTypeForm() {
 
     try {
       if (isUpdate) {
-        await Api.put(`FeedbackType/${id}`, payload);
+        await Api.put(`FeedbackType/${id}`, payload,
+          {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}` 
+                        }
+                }
+        );
         alert("Feedback Type updated successfully!");
       } else {
-        await Api.post("FeedbackType/CreateFeedbackType", payload);
+        await Api.post("FeedbackType/CreateFeedbackType", 
+          {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}` 
+                        }
+                    }
+          ,payload);
         alert("Feedback Type created successfully!");
       }
       navigate("/app/feedback-type-list");
