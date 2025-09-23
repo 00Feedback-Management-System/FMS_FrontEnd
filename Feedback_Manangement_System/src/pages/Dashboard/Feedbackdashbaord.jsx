@@ -11,6 +11,7 @@ function FeedbackDashboard() {
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedFeedbackType, setSelectedFeedbackType] = useState("");
   const [rows, setRows] = useState([]);
+  const token = localStorage.getItem("token");
 
   // Columns
   const columns = [
@@ -31,7 +32,14 @@ function FeedbackDashboard() {
 
   const fetchFeedbacks = async () => {
     try {
-      const response = await Api.get("FeedbackReport/course-feedback-report");
+      const response = await Api.get("FeedbackReport/course-feedback-report",
+        {
+          headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` 
+                    }
+      }
+      );
       const mapped = response.data.map((item, index) => {
         const d = item.date ? new Date(item.date) : null;
         const formattedDate = d
@@ -67,7 +75,14 @@ function FeedbackDashboard() {
 
   const fetchFeedbackTypes = async () => {
     try {
-      const response = await Api.get("FeedbackType/GetFeedbackType");
+      const response = await Api.get("FeedbackType/GetFeedbackType",
+        {
+          headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` 
+                    }
+      }
+      );
       setFeedbackTypes(response.data || []);
     } catch (error) {
       console.error("Failed to load feedback types:", error);

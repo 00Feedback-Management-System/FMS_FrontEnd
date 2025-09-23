@@ -11,9 +11,17 @@ import Api from "../../services/api";
 export default function FeedbackTypeList() {
   const navigate = useNavigate();
   const [rows, setRows] = useState([]);
+  const token = localStorage.getItem("token");
 
   const fetchFeedbackTypes = () => {
-    Api.get("FeedbackType/GetFeedbackType")
+    Api.get("FeedbackType/GetFeedbackType",
+      {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}` 
+                        }
+                    }
+    )
       .then((res) => {
         console.log("API response:", res.data); // check data
         // Map API data to match DataGrid expected field names
@@ -46,7 +54,14 @@ export default function FeedbackTypeList() {
  const handleDelete = async (id) => {
   if (window.confirm("Are you sure you want to delete this feedback type?")) {
     try {
-      await Api.delete(`FeedbackType/${id}`);
+      await Api.delete(`FeedbackType/${id}`,
+        {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}` 
+                        }
+                    }
+      );
       alert("Feedback type deleted successfully!");
       fetchFeedbackTypes();
     } catch (err) {

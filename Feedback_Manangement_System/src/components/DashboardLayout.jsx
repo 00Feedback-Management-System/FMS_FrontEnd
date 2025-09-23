@@ -69,6 +69,12 @@ function DashboardLayout() {
                                     </ListItemIcon>
                                     Feedback
                                 </ListItemButton>
+                                 <ListItemButton onClick={() => navigate("/app/feedback-type-list")}>
+                                    <ListItemIcon>
+                                        <ThumbUpAltIcon />
+                                    </ListItemIcon>
+                                    FeedbackType
+                                </ListItemButton>
                                 <ListItemButton onClick={() => navigate("/app/schedule-Feedback-List")}>
                                     <ListItemIcon>
                                         <AddToPhotosIcon />

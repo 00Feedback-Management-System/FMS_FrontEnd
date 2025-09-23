@@ -34,7 +34,6 @@ function Login() {
       const response = await api.post('Login', {
         email,
         password,
-        role: role.toLowerCase()
       })
 
       if (response.data && response.data.message === "Login successful.") {
@@ -48,13 +47,13 @@ function Login() {
         console.log("user:", user);
 
         setRole(user.role.toLowerCase());
-        // ✅ If remember me checked → save credentials
+        // If remember me checked → save credentials
         if (remember) {
           localStorage.setItem("rememberEmail", email)
           localStorage.setItem("rememberPassword", password)
           localStorage.setItem("rememberRole", role)
         } else {
-          // ❌ Clear if not checked
+          // Clear if not checked
           localStorage.removeItem("rememberEmail")
           localStorage.removeItem("rememberPassword")
           localStorage.removeItem("rememberRole")
