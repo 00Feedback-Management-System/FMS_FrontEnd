@@ -4,6 +4,9 @@ import { Box, Button } from "@mui/material";
 import Api from "../../services/api";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+//import { ToastContainer } from "react-toastify";
 
 const FeedbackDashboard = () => {
   const [feedbacks, setFeedbacks] = useState([]);
@@ -135,6 +138,26 @@ const FeedbackDashboard = () => {
   const feedbackGroupId = matchedFeedback?.feedbackGroupId || 0;
   // -------------------as per search button click
   const getQuestionRating = async () => {
+    if (!selectedCourse) {
+      toast.error("Please select a Course");
+      return;
+    }
+    if (!selectedModule) {
+      toast.error("Please select a Module");
+      return;
+    }
+    if (!selectedFaculty) {
+      toast.error("Please select a Faculty");
+      return;
+    }
+    if (!selectedFeedbackType) {
+      toast.error("Please select a Feedback Type");
+      return;
+    }
+    if (!getDateRange()) {
+      toast.error("Invalid Date Range for this selection");
+      return;
+    }
     try {
       const response = await Api.post(
         "Feedback/FacultyFeedbackSummary",
@@ -180,6 +203,11 @@ const FeedbackDashboard = () => {
       setRows(processedRows);
     } catch (error) {
       console.error("Error fetching summary:", error);
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to fetch feedback summary"
+      );
     }
   };
 
@@ -351,7 +379,7 @@ const FeedbackDashboard = () => {
             Export
           </Button>
         </Box>
-
+        <ToastContainer position="top-right" autoClose={3000} />
         {/* DataGrid */}
         <div style={{ height: 400, width: "100%" }}>
           <DataGrid rows={rows} columns={columns} pageSize={5} />
