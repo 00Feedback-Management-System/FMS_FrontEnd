@@ -160,7 +160,7 @@ const FeedbackDashboard = () => {
     }
     try {
       const response = await Api.post(
-        "Feedback/FacultyFeedbackSummary",
+        "FeedbackReport/FacultyFeedbackSummary",
         {
           staff_name: selectedFaculty,
           module_name: selectedModule,
