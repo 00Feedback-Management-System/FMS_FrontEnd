@@ -11,6 +11,11 @@ import {
   Grid,
 } from "@mui/material";
 import Api from "../../services/api";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { IconButton } from "@mui/material";
+
 
 export default function CourseWiseReport() {
   const [rows, setRows] = useState([]);
@@ -162,6 +167,42 @@ const token = localStorage.getItem("token");
     },
   ];
 
+  const downloadPDF = () => {
+    const doc = new jsPDF("l", "pt", "a4");
+    doc.setFontSize(16);
+    doc.text("Course Wise Report with Ratings", 40, 40);
+
+    const tableColumn = [
+      "Sr. No",
+      "Course",
+      "Module",
+      "Feedback Type",
+      "Course Avg Rating",
+      "Module Avg Rating",
+      "Rating",
+    ];
+    const tableRows = filteredRows.map((row) => [
+      row.id,
+      row.courseName,
+      row.moduleName,
+      row.feedbackType,
+      row.courseAverageRating,
+      row.moduleAverageRating,
+      row.rating,
+    ]);
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 60,
+      theme: "grid",
+      styles: { halign: "center", valign: "middle", fontSize: 10 },
+      headStyles: { fillColor: [25, 118, 210], textColor: "#fff", fontStyle: "bold" },
+    });
+
+    doc.save("CourseWiseReport.pdf");
+  };
+
   
   if (loading) {
     return (
@@ -199,7 +240,11 @@ const token = localStorage.getItem("token");
       <Typography variant="h5" align="center" gutterBottom>
         Course Wise Report with Ratings
       </Typography>
-
+<Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+    <IconButton color="primary" onClick={downloadPDF}>
+    <PictureAsPdfIcon />
+   </IconButton>
+        </Box>
      
       <Grid container spacing={2} mb={2}>
         

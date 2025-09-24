@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function AddCourse() {
   const [courseName, setCourseName] = useState("");
@@ -54,7 +56,7 @@ const token = localStorage.getItem("token");
         },
       });
 
-      alert("✅ Course added successfully!");
+     toast.success("✅ Course added successfully!");
       setCourseName("");
       setStartDate("");
       setEndDate("");
@@ -76,6 +78,7 @@ const token = localStorage.getItem("token");
 
   return (
     <div className="container mt-4">
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
       <h2 className="text-center">Add Course</h2>
 
      
