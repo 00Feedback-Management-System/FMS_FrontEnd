@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from "react";
 import Api from "../../services/api";
-import { getCourses } from "../../services/course";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Bar } from "react-chartjs-2";
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+} from "chart.js";
 
-const faculties = [
-    { name: "Faculty1", value: 34 },
-    { name: "Faculty2", value: 29 },
-    { name: "Faculty3", value: 21 },
-    { name: "Faculty4", value: 39 },
-];
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 function FacultyFeedbackSummary() {
     const [selectedTypes, setSelectedTypes] = useState([]);
@@ -18,6 +24,9 @@ function FacultyFeedbackSummary() {
     const [selectedCourseType, setSelectedCourseType] = useState("");
     const [selectedCourse, setSelectedCourse] = useState("");
     const [selectedCycle, setSelectedCycle] = useState("");
+    const [chartData, setChartData] = useState(null);
+
+    const token = localStorage.getItem("token");
 
     const fetchCourseTypes = async () => {
         try{
@@ -34,7 +43,14 @@ function FacultyFeedbackSummary() {
 
         if (value && value !== "Course Type") {
             try {
-            const res = await Api.get(`GetCoursesByType/${value}`);
+            const res = await Api.get(`GetCoursesByType/${value}`,
+                {
+                    headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
             setCourses(res.data || []);
             } catch (error) {
             console.error("Failed to load courses:", error);
@@ -47,7 +63,14 @@ function FacultyFeedbackSummary() {
     
     const fetchFeedbackTypes = async () => {
         try{
-            const response = await Api.get("FeedbackType/GetFeedbackType");
+            const response = await Api.get("FeedbackType/GetFeedbackType",
+                {
+                    headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
             setFeedbackTypes(response.data || []);
         }catch(e){
             console.log("Failed to load feedback types:", e);
@@ -78,7 +101,45 @@ function FacultyFeedbackSummary() {
         setSelectedCycle("");
     }, [selectedCourseType])
 
+    const handleGenerate = async () => {
+        try {
+            if (!selectedCourseType || !selectedCourse || selectedTypes.length === 0) {
+                toast.warning("Please select Course Type, Course, and at least one Feedback Type!");
+                return;
+            }
+
+            const response = await Api.get(
+                `Feedback/PerFacultyFeedbackSummary?courseType=${selectedCourseType}&courseId=${selectedCourse}&feedbackTypeIds=${selectedTypes.join(",")},`,
+                {
+                    headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const result = response.data || [];
+
+            setChartData({
+                labels: result.map((r) => r.staffName),
+                datasets: [
+                    {
+                        label: "Average Rating (out of 5)",
+                        data: result.map((r) => r.averageRating),
+                        backgroundColor: "rgba(54, 162, 235, 0.7)",
+                        borderColor: "rgba(54, 162, 235, 1)",
+                        borderWidth: 1,
+                    },
+                ],
+            });
+        } catch (err) {
+            console.error("Error fetching chart data:", err);
+        }
+    };
+
     return (
+        <>
+        <ToastContainer position="top-right" autoClose={3000} />
         <div className="container ">
             <h2 className="page-header text-center mt-3 ">Per Faculty Feedback Summary</h2>
             <div className="row mb-3 mt-3">
@@ -145,56 +206,36 @@ function FacultyFeedbackSummary() {
                 ))}
             </div>
             <div className="text-center mb-4">
-                <button className="btn" style={{ background: "#00ff00", minWidth: 120 }}>
+                <button className="btn" style={{ background: "#00ff00", minWidth: 120 }} onClick={handleGenerate}>
                     Generate
                 </button>
             </div>
             <hr />
-            <div className="mt-4">
-                <div style={{ height: 220, position: "relative", background: "#fff", borderRadius: 8, padding: 20 }}>
-                    <div style={{ position: "absolute", left: 30, top: 20, bottom: 40, width: 1, background: "#222" }} />
-                    <div style={{ position: "absolute", left: 30, right: 20, bottom: 40, height: 1, background: "#222" }} />
-                    <div style={{ display: "flex", alignItems: "flex-end", height: 140, marginLeft: 50, marginRight: 30 }}>
-                        {faculties.map((f, i) => (
-                            <div key={f.name} style={{ flex: 1, textAlign: "center", position: "relative" }}>
-                                <div
-                                    style={{
-                                        height: `${f.value * 3}px`,
-                                        background: "blue",
-                                        margin: "0 10px",
-                                        borderRadius: 4,
-                                        transition: "height 0.3s",
-                                    }}
-                                    title={f.value}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                    <div style={{
-                        display: "flex",
-                        position: "absolute",
-                        left: 80,
-                        right: 30,
-                        bottom: 10,
-                        height: 20,
-                        alignItems: "flex-start"
-                    }}>
-                        {faculties.map((f, i) => (
-                            <div key={f.name} style={{ flex: 1, textAlign: "center", fontWeight: 500, fontSize: 14 }}>
-                                {f.name}
-                            </div>
-                        ))}
-                    </div>
-                    <div style={{ position: "absolute", left: 0, bottom: 40, fontSize: 12 }}>
-                        <div style={{ position: "absolute", bottom: 0 }}>0</div>
-                        <div style={{ position: "absolute", bottom: 60 }}>20</div>
-                        <div style={{ position: "absolute", bottom: 120 }}>40</div>
-                    </div>
-                    <div style={{ position: "absolute", right: 15, bottom: 35, fontSize: 24 }}>→</div>
-                    <div style={{ position: "absolute", left: 20, top: 10, fontSize: 24 }}>↑</div>
-                </div>
+            <div className="d-flex justify-content-center mt-4">
+                {chartData ? (
+                    <Bar
+                        data={chartData}
+                        options={{
+                            responsive: true,
+                            plugins: {
+                                legend: { position: "top" },
+                                title: { display: true, text: "Faculty Average Ratings" },
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 5,
+                                    ticks: { stepSize: 1 },
+                                },
+                            },
+                        }}
+                    />
+                ) : (
+                    <p className="text-center text-muted">Click Generate to view the chart</p>
+                )}
             </div>
         </div>
+        </>
     );
 }
 
