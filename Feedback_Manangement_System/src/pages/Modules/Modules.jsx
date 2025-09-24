@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function AddModule() {
   const [moduleName, setModuleName] = useState("");
   const [duration, setDuration] = useState("");
@@ -18,6 +19,7 @@ const token = localStorage.getItem("token");
       })
       .then((res) => setCourses(res.data))
       .catch((err) => console.error("Error fetching courses:", err));
+       //toast.error("⚠️ Failed to load course");
   }, [token]);
 
   
@@ -31,6 +33,7 @@ const token = localStorage.getItem("token");
       })
       .then((res) => setModules(res.data))
       .catch((err) => console.error("Error fetching modules:", err));
+      // toast.error("⚠️ Failed to load modules!");
   };
 
   useEffect(() => {
@@ -55,19 +58,20 @@ const token = localStorage.getItem("token");
           Authorization: `Bearer ${token}`,
         },
       });
-      alert("✅ Module added successfully!");
+      toast.success("✅ Module added successfully!");
       setModuleName("");
       setDuration("");
       setCourseId("");
       fetchModules(); 
     } catch (error) {
       console.error(" Error adding module:", error.response?.data || error.message);
-      alert(" Failed to add module");
+       toast.error("❌ Failed to add module");
     }
   };
 
   return (
     <div className="container mt-4">
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
       <h2 className="text-center mb-4">Add Module</h2>
 
      
