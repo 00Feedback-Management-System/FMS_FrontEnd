@@ -30,7 +30,14 @@ function FacultyFeedbackSummary() {
 
     const fetchCourseTypes = async () => {
         try{
-            const response = await Api.get("GetCourseTypes");
+            const response = await Api.get("GetCourseTypes",
+                {
+                    headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
             setCourseTypes(response.data || []);
         }catch(e){
             console.log("Failed to load course types:", e);
@@ -108,8 +115,10 @@ function FacultyFeedbackSummary() {
                 return;
             }
 
+            const feedbackTypeIds = selectedTypes.join(",");
+
             const response = await Api.get(
-                `Feedback/PerFacultyFeedbackSummary?courseType=${selectedCourseType}&courseId=${selectedCourse}&feedbackTypeIds=${selectedTypes.join(",")},`,
+                `FeedbackReport/PerFacultyFeedbackSummary?courseType=${selectedCourseType}&courseId=${selectedCourse}&feedbackTypeIds=${feedbackTypeIds},`,
                 {
                     headers: {
                     "Content-Type": "application/json",
@@ -212,27 +221,29 @@ function FacultyFeedbackSummary() {
             </div>
             <hr />
             <div className="d-flex justify-content-center mt-4">
-                {chartData ? (
-                    <Bar
-                        data={chartData}
-                        options={{
-                            responsive: true,
-                            plugins: {
-                                legend: { position: "top" },
-                                title: { display: true, text: "Faculty Average Ratings" },
-                            },
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    max: 5,
-                                    ticks: { stepSize: 1 },
+                <div style={{ width: "100%", maxWidth: "900px" }}> 
+                    {chartData ? (
+                        <Bar
+                            data={chartData}
+                            options={{
+                                responsive: true,
+                                plugins: {
+                                    legend: { position: "top" },
+                                    title: { display: true, text: "Faculty Average Ratings" },
                                 },
-                            },
-                        }}
-                    />
-                ) : (
-                    <p className="text-center text-muted">Click Generate to view the chart</p>
-                )}
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        max: 5,
+                                        ticks: { stepSize: 1 },
+                                    },
+                                },
+                            }}
+                        />
+                    ) : (
+                        <p className="text-center text-muted">Click Generate to view the chart</p>
+                    )}
+                </div>
             </div>
         </div>
         </>
