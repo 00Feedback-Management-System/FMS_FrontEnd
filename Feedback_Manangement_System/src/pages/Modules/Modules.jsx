@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 function AddModule() {
   const [moduleName, setModuleName] = useState("");
   const [duration, setDuration] = useState("");
@@ -21,11 +20,12 @@ function AddModule() {
         },
       })
       .then((res) => setCourses(res.data))
+
       .catch((err) => {
         console.error("Error fetching courses:", err);
         toast.error("Failed to load courses");
       });
-  }, [token]);
+   }, [token]);
 
   // Fetch modules
   const fetchModules = () => {
@@ -37,11 +37,12 @@ function AddModule() {
         },
       })
       .then((res) => setModules(res.data))
+
       .catch((err) => {
         console.error("Error fetching modules:", err);
         toast.error("Failed to load modules");
       });
-  };
+    };
 
   useEffect(() => {
     fetchModules();
@@ -70,6 +71,7 @@ function AddModule() {
       setCourseId("");
       fetchModules();
     } catch (error) {
+
       console.error("Error adding module:", error.response?.data || error.message);
       toast.error("Failed to add module");
     }
@@ -77,8 +79,10 @@ function AddModule() {
 
   return (
     <div className="container mt-4">
+
       <ToastContainer position="top-right" autoClose={3000} />
-      <h2 className="text-center mb-4">Add Module</h2>
+
+     <h2 className="text-center mb-4">Add Module</h2>
 
       <form onSubmit={handleSubmit} className="card p-4 shadow-sm mb-4">
         <div className="mb-3">

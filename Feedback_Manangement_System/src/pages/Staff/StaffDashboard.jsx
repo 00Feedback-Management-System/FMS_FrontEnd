@@ -14,9 +14,9 @@ export default function StaffDashboard() {
 const handleDownloadFullPdf = () => {
   const doc = new jsPDF();
   doc.text("Staff Feedback Report", 14, 15);
-  const tableColumn = ["ID", "Course", "Date", "Module", "Type", "Session", "Rating"];
-  const tableRows = rows.map((row) => [
-    row.id,
+  const tableColumn = ["#", "Course", "Date", "Module", "Type", "Session", "Rating"];
+  const tableRows = rows.map((row,index) => [
+    index + 1,
     row.course,
     row.date,
     row.module,
@@ -25,7 +25,7 @@ const handleDownloadFullPdf = () => {
     row.rating ?? "N/A",
   ]);
 
-  // Generate table
+  
   autoTable(doc, {
     head: [tableColumn],
     body: tableRows,
@@ -34,7 +34,7 @@ const handleDownloadFullPdf = () => {
   doc.save("feedback_report_full.pdf");
 };
 
-  // Function to download PDF for a specific row
+ 
   const handleDownloadPdf = (row) => {
   const doc = new jsPDF();
   doc.text("Staff Feedback Report", 14, 15);
@@ -125,7 +125,7 @@ const handleDownloadFullPdf = () => {
     },
   ];
 
-  // Fetch scheduled feedback for logged-in staff
+  
   useEffect(() => {
   const user = JSON.parse(localStorage.getItem("user"));
   const token = localStorage.getItem("token");
@@ -134,25 +134,50 @@ const handleDownloadFullPdf = () => {
   const fetchScheduledFeedback = async () => {
     try {
       const response = await Api.get(`/staff/${user.id}/scheduledFeedback`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // 👈 add token here
-          },
-        });;
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      // Use backend rating directly
-      const feedbackData = response.data.map((f, index) => ({
-        id: f.feedbackId || index + 1,
-        course: f.courseName,
-        date: f.startDate,
-        module: f.moduleName,
-        type: f.feedbackTypeName,
-        session: f.session,
-        feedbackTypeId: f.feedback_type_id,
-        rating: f.rating ?? "N/A", // ✅ already provided by backend
+      
+      const grouped = response.data.reduce((acc, f) => {
+        const key = `${f.moduleName}_${f.feedback_type_id}`;
+        if (!acc[key]) {
+          acc[key] = {
+            course: f.courseName,
+            date: f.startDate || f.createdAt || null,
+            module: f.moduleName,
+            type: f.feedbackTypeName,
+            session: f.session,
+            feedbackTypeId: f.feedback_type_id,
+            ratings: [f.rating ?? 0], // store ratings in array
+          };
+        } else {
+          acc[key].ratings.push(f.rating ?? 0);
+        }
+        return acc;
+      }, {});
+
+     
+      const feedbackArray = Object.values(grouped).map((item, index) => ({
+        id: index + 1, // unique row id for DataGrid
+        course: item.course,
+        date: item.date
+        ? new Date(item.date).toLocaleDateString()
+        : "N/A",
+        module: item.module,
+        type: item.type,
+        session: item.session,
+        feedbackTypeId: item.feedbackTypeId,
+        rating: item.ratings.length
+          ? Math.round(
+              item.ratings.reduce((a, b) => a + b, 0) / item.ratings.length * 100
+            ) / 100
+          : "N/A", // average rating rounded to 2 decimals
       }));
 
-      setRows(feedbackData);
+      setRows(feedbackArray);
     } catch (error) {
       console.error("Error fetching scheduled feedback:", error);
     } finally {
@@ -162,6 +187,41 @@ const handleDownloadFullPdf = () => {
 
   fetchScheduledFeedback();
 }, []);
+//   useEffect(() => {
+//   const user = JSON.parse(localStorage.getItem("user"));
+//   const token = localStorage.getItem("token");
+//   if (!user || !user.id) return;
+
+//   const fetchScheduledFeedback = async () => {
+//     try {
+//       const response = await Api.get(`/staff/${user.id}/scheduledFeedback`, {
+//           headers: {
+//             "Content-Type": "application/json",
+//             Authorization: `Bearer ${token}`, // 👈 add token here
+//           },
+//         });;
+
+//       // Use backend rating directly
+//       const feedbackData = response.data.map((f, index) => ({
+//  id: `${f.feedbackId}_${index}`, // ✅ unique even if feedbackId repeats
+//   course: f.courseName,
+//   date: f.startDate,
+//   module: f.moduleName,
+//   type: f.feedbackTypeName,
+//   session: f.session,
+//   feedbackTypeId: f.feedback_type_id,
+//   rating: f.rating ?? "N/A",
+// }));
+//       setRows(feedbackData);
+//     } catch (error) {
+//       console.error("Error fetching scheduled feedback:", error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   fetchScheduledFeedback();
+// }, []);
 
   return (
     

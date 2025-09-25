@@ -56,7 +56,9 @@ function AddCourse() {
         },
       });
 
+
       toast.success("✅ Course added successfully!");
+      
       setCourseName("");
       setStartDate("");
       setEndDate("");
@@ -80,10 +82,11 @@ function AddCourse() {
 
   return (
     <div className="container mt-4">
+
       {/* Toast notifications */}
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
 
-      <h2 className="text-center">Add Course</h2>
+    <h2 className="text-center">Add Course</h2>
 
       {errors.length > 0 && (
         <div className="alert alert-danger">
