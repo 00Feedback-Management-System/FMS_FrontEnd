@@ -2,12 +2,15 @@ import { useState, useEffect } from "react";
 import Api from "../../services/api";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom"; 
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function StudentForm() {
   const [courses, setCourses] = useState([]);
   const [groups, setGroups] = useState([]);
   const navigate = useNavigate(); 
-  const [showPassword, setShowPassword] = useState(false); //for toggle
+  const [showPassword, setShowPassword] = useState(false);
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -35,7 +38,10 @@ function StudentForm() {
   useEffect(() => {
     Api.get("GetAllCourse")
       .then((res) => setCourses(res.data))
-      .catch((err) => console.error("Error fetching courses:", err));
+      .catch((err) => {
+        console.error("Error fetching courses:", err);
+        toast.error("Failed to fetch courses");
+      });
   }, []);
 
   const handleCourseChange = async (e) => {
@@ -49,6 +55,7 @@ function StudentForm() {
       } catch (err) {
         console.error("Error fetching groups:", err);
         setGroups([]);
+        toast.error("Failed to fetch groups");
       }
     } else {
       setGroups([]);
@@ -69,7 +76,7 @@ function StudentForm() {
 
     const { firstName, lastName, email, password, courseId } = formData;
     if (!firstName || !lastName || !email || !password || !courseId) {
-      alert("Please fill all required fields.");
+      toast.warning("Please fill all required fields");
       return;
     }
 
@@ -86,14 +93,14 @@ function StudentForm() {
       const res = await Api.post("StudentApi/UploadProfile", data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      alert("Student created successfully!");
+
+      toast.success("Student registered successfully!");
       console.log(res.data);
 
       navigate("/login");
-     
     } catch (err) {
       console.error("Error creating student:", err);
-      alert("Error creating student");
+      toast.error("Error creating student");
     }
   };
 
@@ -142,15 +149,15 @@ function StudentForm() {
               value={formData.email}
               onChange={handleChange}
               placeholder="Enter email"
-              autoComplete="off" // 🔑 prevent browser autofill
+              autoComplete="off"
             />
           </div>
 
-           {/* Password with show/hide (eye icon) */}
+          {/* Password with show/hide */}
           <div className="mb-3">
             <label className="form-label">Password *</label>
             <div className="input-group">
-             <input
+              <input
                 type={showPassword ? "text" : "password"}
                 className="form-control"
                 name="password"
@@ -158,21 +165,20 @@ function StudentForm() {
                 onChange={handleChange}
                 placeholder="Enter password"
                 autoComplete="new-password"
-            />
-             <span
-               onClick={() => setShowPassword(!showPassword)}
-               style={{
-                 position: "absolute",
-                 right: "10px",
-                 top: "5px",
-                 cursor: "pointer"
-               }}
-             >
-               {showPassword ? <FaEyeSlash /> : <FaEye />}
-             </span>
-       </div>
-      </div>
-
+              />
+              <span
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "10px",
+                  top: "5px",
+                  cursor: "pointer",
+                }}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            </div>
+          </div>
 
           {/* Course */}
           <div className="mb-3">
@@ -222,18 +228,18 @@ function StudentForm() {
             />
           </div>
 
-         <div className="d-flex justify-content-center mt-3 gap-3">
-                <button type="submit" className="btn btn-success">
-                   Register
-                 </button>
-                 <button
-                   type="button"
-                   className="btn btn-secondary"
-                   onClick={() => navigate("/login")}
-                 >
-                 Cancel
+          <div className="d-flex justify-content-center mt-3 gap-3">
+            <button type="submit" className="btn btn-success">
+              Register
             </button>
-         </div>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => navigate("/login")}
+            >
+              Cancel
+            </button>
+          </div>
         </form>
       </div>
     </div>

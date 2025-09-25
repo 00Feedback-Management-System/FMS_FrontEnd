@@ -6,9 +6,10 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-//import axios from "axios";
 import Api from "../../services/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function ScheduleFeedbackList() {
   const navigate = useNavigate();
@@ -61,7 +62,6 @@ export default function ScheduleFeedbackList() {
     return { rows: enriched, totalCount };
   };
 
-  // ✅ v5 useQuery
   const { data, isFetching } = useQuery({
     queryKey: ["feedbacks", paginationModel.page, paginationModel.pageSize],
     queryFn: () =>
@@ -77,7 +77,6 @@ export default function ScheduleFeedbackList() {
     if (data?.totalCount != null) lastTotalCountRef.current = data.totalCount;
   }, [data]);
 
-  // ✅ v5 prefetchQuery
   React.useEffect(() => {
     const nextPage = paginationModel.page + 1;
     const pageSize = paginationModel.pageSize;
@@ -99,25 +98,50 @@ export default function ScheduleFeedbackList() {
   };
 
   const handleDelete = async (feedbackGroupId) => {
-    if (!window.confirm("Are you sure you want to delete this record?")) return;
-
-    try {
-      await Api.delete(`Feedback/DeleteFeedbackGroup/${feedbackGroupId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      queryClient.invalidateQueries({ queryKey: ["feedbacks"] });
-      alert("Record deleted successfully!");
-    } catch (error) {
-      console.error("Error deleting record:", error);
-      const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to delete record.";
-      alert(message);
-    }
+    // ✅ Custom confirmation with toast (instead of window.confirm)
+    toast.info(
+      <div>
+        <p>Are you sure you want to delete this record?</p>
+        <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
+          <Button
+            variant="contained"
+            color="error"
+            size="small"
+            onClick={async () => {
+              try {
+                await Api.delete(`Feedback/DeleteFeedbackGroup/${feedbackGroupId}`, {
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                });
+                queryClient.invalidateQueries({ queryKey: ["feedbacks"] });
+                toast.dismiss();
+                toast.success("Record deleted successfully!");
+              } catch (error) {
+                console.error("Error deleting record:", error);
+                const message =
+                  error?.response?.data?.message ||
+                  error?.message ||
+                  "Failed to delete record.";
+                toast.dismiss();
+                toast.error(message);
+              }
+            }}
+          >
+            Yes
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => toast.dismiss()}
+          >
+            No
+          </Button>
+        </div>
+      </div>,
+      { autoClose: false, closeOnClick: false }
+    );
   };
 
   const formatDate = (value) => {
@@ -202,7 +226,7 @@ export default function ScheduleFeedbackList() {
                 const start = new Date(params.row.startDate);
                 const now = new Date();
                 if (start <= now) {
-                  alert("You cannot update feedback after start date.");
+                  toast.error("You cannot update feedback after start date.");
                   return;
                 }
                 navigate(`/app/update-feedback-form/${params.row.feedbackId}`, {
@@ -238,6 +262,7 @@ export default function ScheduleFeedbackList() {
 
   return (
     <div className="container">
+      <ToastContainer position="top-right" autoClose={3000} />
       <h2 className="table-header text-center mt-3">Schedule Feedback List</h2>
 
       <Box

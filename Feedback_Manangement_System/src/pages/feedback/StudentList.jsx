@@ -7,6 +7,8 @@ import "jspdf-autotable";
 import "./Component.css";
 import { useParams, useLocation } from "react-router-dom";
 import Api from "../../services/api";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const columns = [
   { field: "student_rollno", headerName: "Roll No", flex: 1 },
@@ -23,11 +25,12 @@ export default function StudentList() {
 
   const isSubmittedPage = location.pathname.includes("student-list");
   const token = localStorage.getItem("token");
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const endpoint = isSubmittedPage
-          ? `StudentApi/Submitted/${feedbackGroupId} `
+          ? `StudentApi/Submitted/${feedbackGroupId}`
           : `StudentApi/NotSubmitted/${feedbackGroupId}`;
 
         const res = await Api.get(endpoint, {
@@ -45,6 +48,7 @@ export default function StudentList() {
         setRows(dataWithIds);
       } catch (err) {
         console.error("Error fetching students:", err);
+        toast.error("Failed to load student data. Please try again.");
       }
     };
 
@@ -53,11 +57,9 @@ export default function StudentList() {
 
   const exportPDF = () => {
     if (!rows || rows.length === 0) {
-      alert("No data available to export");
+      toast.warning("No data available to export!");
       return;
     }
-
-    console.log("Exporting rows:", rows); // ✅ check if data is coming
 
     const doc = new jsPDF();
     const tableColumn = [
@@ -94,10 +96,14 @@ export default function StudentList() {
       startY: 25,
     });
 
-    // Save file
-    doc.save(
-      isSubmittedPage ? "filled_students.pdf" : "remaining_students.pdf"
-    );
+    // Add timestamp in filename
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, "-");
+    const filename = isSubmittedPage
+      ? `filled_students_${timestamp}.pdf`
+      : `remaining_students_${timestamp}.pdf`;
+
+    doc.save(filename);
+    toast.success("PDF exported successfully!");
   };
 
   return (
@@ -124,6 +130,8 @@ export default function StudentList() {
           disableRowSelectionOnClick
         />
       </Box>
+
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 }

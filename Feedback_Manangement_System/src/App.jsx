@@ -25,13 +25,14 @@ import StaffForm from './pages/Staff/StaffForm';
 import AddCourse from './pages/Courses/Courses';
 import AddGroups from './pages/Groups/Groups';
 import AddModule from './pages/Modules/Modules';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export const RoleContext = createContext();
 
 function App() {
 
-  const [groups, setGroups] = useState([]);
-  const [role, setRole] = useState(null);
+   const [role, setRole] = useState(null);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -95,6 +96,19 @@ function App() {
             </Route>
           </Routes>
         </Router>
+
+        <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       </RoleContext.Provider>
     </div>
   );

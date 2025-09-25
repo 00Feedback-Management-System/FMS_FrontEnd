@@ -7,6 +7,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import Api from "../../services/api";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function FeedbackTypeList() {
   const navigate = useNavigate();
@@ -14,17 +16,13 @@ export default function FeedbackTypeList() {
   const token = localStorage.getItem("token");
 
   const fetchFeedbackTypes = () => {
-    Api.get("FeedbackType/GetFeedbackType",
-      {
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}` 
-                        }
-                    }
-    )
+    Api.get("FeedbackType/GetFeedbackType", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((res) => {
-        console.log("API response:", res.data); // check data
-        // Map API data to match DataGrid expected field names
         const mappedRows = res.data.map((item) => ({
           feedback_type_id: item.feedback_type_id,
           feedback_type_title: item.feedback_type_title,
@@ -36,7 +34,10 @@ export default function FeedbackTypeList() {
         }));
         setRows(mappedRows);
       })
-      .catch((err) => console.error("Error fetching feedback types:", err));
+      .catch((err) => {
+        console.error("Error fetching feedback types:", err);
+        toast.error("Failed to fetch feedback types.");
+      });
   };
 
   useEffect(() => {
@@ -51,32 +52,53 @@ export default function FeedbackTypeList() {
     navigate(`/app/feedback-type-form/${id}`);
   };
 
- const handleDelete = async (id) => {
-  if (window.confirm("Are you sure you want to delete this feedback type?")) {
+  const confirmDelete = (id) => {
+    toast.info(
+      <div>
+        <p>Are you sure you want to delete this feedback type?</p>
+        <div style={{ display: "flex", gap: "10px" }}>
+          <Button
+            variant="contained"
+            color="error"
+            size="small"
+            onClick={() => handleDelete(id)}
+          >
+            Yes
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            size="small"
+            onClick={() => toast.dismiss()}
+          >
+            No
+          </Button>
+        </div>
+      </div>,
+      { autoClose: false }
+    );
+  };
+
+  const handleDelete = async (id) => {
     try {
-      await Api.delete(`FeedbackType/${id}`,
-        {
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}` 
-                        }
-                    }
-      );
-      alert("Feedback type deleted successfully!");
+      await Api.delete(`FeedbackType/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      toast.success("Feedback type deleted successfully!");
       fetchFeedbackTypes();
     } catch (err) {
       console.error("Error deleting feedback type:", err);
 
-      // ✅ Extract backend error message if available
-      if (err.response && err.response.data && err.response.data.message) {
-        alert(err.response.data.message);
+      if (err.response?.data?.message) {
+        toast.error(err.response.data.message);
       } else {
-        alert("Failed to delete feedback type. Please try again.");
+        toast.error("Failed to delete feedback type. Please try again.");
       }
     }
-  }
-};
-
+  };
 
   const columns = [
     { field: "feedback_type_id", headerName: "ID", width: 50 },
@@ -136,7 +158,7 @@ export default function FeedbackTypeList() {
           <Button
             color="error"
             size="small"
-            onClick={() => handleDelete(params.row.feedback_type_id)}
+            onClick={() => confirmDelete(params.row.feedback_type_id)}
           >
             <DeleteIcon />
           </Button>
@@ -164,6 +186,8 @@ export default function FeedbackTypeList() {
           disableRowSelectionOnClick
         />
       </Box>
+
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 }

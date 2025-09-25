@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function AddModule() {
   const [moduleName, setModuleName] = useState("");
@@ -7,47 +9,54 @@ function AddModule() {
   const [courseId, setCourseId] = useState("");
   const [courses, setCourses] = useState([]);
   const [modules, setModules] = useState([]);
-const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
+
+  // Fetch courses
   useEffect(() => {
     axios
-      .get("https://localhost:7056/api/GetAllCourse",{
+      .get("https://localhost:7056/api/GetAllCourse", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       })
       .then((res) => setCourses(res.data))
-      .catch((err) => console.error("Error fetching courses:", err));
+      .catch((err) => {
+        console.error("Error fetching courses:", err);
+        toast.error("Failed to load courses");
+      });
   }, [token]);
 
-  
+  // Fetch modules
   const fetchModules = () => {
     axios
-      .get("https://localhost:7056/api/Modules",{
+      .get("https://localhost:7056/api/Modules", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       })
       .then((res) => setModules(res.data))
-      .catch((err) => console.error("Error fetching modules:", err));
+      .catch((err) => {
+        console.error("Error fetching modules:", err);
+        toast.error("Failed to load modules");
+      });
   };
 
   useEffect(() => {
     fetchModules();
   }, []);
 
-  
+  // Submit new module
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const selectedCourse = courses.find((c) => c.course_id === parseInt(courseId));
-
     const newModule = {
-  module_name: moduleName.trim(),
-  duration: parseInt(duration, 10),
-  course_id: courseId ? parseInt(courseId, 10) : null
-};
+      module_name: moduleName.trim(),
+      duration: parseInt(duration, 10),
+      course_id: courseId ? parseInt(courseId, 10) : null,
+    };
+
     try {
       await axios.post("https://localhost:7056/api/Modules", newModule, {
         headers: {
@@ -55,22 +64,22 @@ const token = localStorage.getItem("token");
           Authorization: `Bearer ${token}`,
         },
       });
-      alert("✅ Module added successfully!");
+      toast.success("✅ Module added successfully!");
       setModuleName("");
       setDuration("");
       setCourseId("");
-      fetchModules(); 
+      fetchModules();
     } catch (error) {
-      console.error(" Error adding module:", error.response?.data || error.message);
-      alert(" Failed to add module");
+      console.error("Error adding module:", error.response?.data || error.message);
+      toast.error("Failed to add module");
     }
   };
 
   return (
     <div className="container mt-4">
+      <ToastContainer position="top-right" autoClose={3000} />
       <h2 className="text-center mb-4">Add Module</h2>
 
-     
       <form onSubmit={handleSubmit} className="card p-4 shadow-sm mb-4">
         <div className="mb-3">
           <label className="form-label">Module Name</label>
@@ -117,7 +126,6 @@ const token = localStorage.getItem("token");
         </button>
       </form>
 
-     
       <h3 className="text-center mb-3">Module List</h3>
       <table className="table table-bordered table-striped">
         <thead>
@@ -154,5 +162,3 @@ const token = localStorage.getItem("token");
 }
 
 export default AddModule;
-
-

@@ -10,10 +10,7 @@ import {
   Typography,
   ListItemButton,
   Collapse,
-  Button,
-  IconButton,
-  Menu,
-  MenuItem
+  Avatar
 } from "@mui/material";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
@@ -21,9 +18,8 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
 import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
 import { Outlet, useNavigate } from "react-router-dom";
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import PersonIcon from '@mui/icons-material/Person';
-import WavingHandIcon from '@mui/icons-material/WavingHand';
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import WavingHandIcon from "@mui/icons-material/WavingHand";
 
 function StudentDashboardLayout() {
   const navigate = useNavigate();
@@ -34,20 +30,10 @@ function StudentDashboardLayout() {
 
   const drawerWidth = 240;
 
-  const [anchorEl, setAnchorEl] = useState(null);
-  const menuOpen = Boolean(anchorEl);
-
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     navigate("/");
-  };
-
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleMenuClose = () => {
-    setAnchorEl(null);
   };
 
   return (
@@ -70,7 +56,6 @@ function StudentDashboardLayout() {
         >
           <WavingHandIcon sx={{ color: "burlywood", mr: 2 }} />
           Welcome
-          {/* {username} */}
         </Toolbar>
         <Box sx={{ flexGrow: 1 }}>
           <List>
@@ -124,53 +109,37 @@ function StudentDashboardLayout() {
         }}
       >
         <AppBar
-          position="sticky"
-          sx={{ bgcolor: "success.main", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        >
-          <Toolbar sx={{ justifyContent: "space-between" }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                {/* <WavingHandIcon sx={{ color: "yellow" }} />
-                <Typography variant="h6" noWrap component="div">
-                  Welcome
-                </Typography> */}
-              </Box>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                  {username}
-                </Typography>
-                <IconButton color="inherit" onClick={handleMenuOpen}>
-                  <AccountCircleIcon fontSize="large" />
-                </IconButton>
-              </Box>
-              <Menu
-                anchorEl={anchorEl}
-                open={menuOpen}
-                onClose={handleMenuClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                transformOrigin={{ vertical: "top", horizontal: "right" }}
-              >
-                <MenuItem
-                  onClick={() => {
-                    handleMenuClose();
-                    navigate("/app/student-profile");
-                  }}
-                >
-                  <PersonIcon fontSize="small" sx={{ mr: 1 }} /> Profile
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    handleMenuClose();
-                    handleLogout();
-                  }}
-                >
-                  <LogoutIcon fontSize="small" sx={{ mr: 1 }} /> Logout
-                </MenuItem>
-              </Menu>
-            {/* <Button color="inherit" onClick={handleLogout}>
-              Logout
-            </Button> */}
-          </Toolbar>
-        </AppBar>
+  position="sticky"
+  sx={{
+    bgcolor: "success.main",
+    zIndex: (theme) => theme.zIndex.drawer + 1,
+  }}
+>
+  <Toolbar sx={{ justifyContent: "space-between" }}>
+    {/* Left side - keep empty or app name if needed */}
+    <Typography variant="h5" sx={{ fontWeight: 600 }}>
+
+    </Typography>
+
+    {/* Right side - username + avatar */}
+    <Box sx={{ display: "flex", alignItems: "center", ml: "auto" }}>
+      <Typography variant="h6" sx={{ fontWeight: 600, mr: 2 }}>
+        {username}
+      </Typography>
+
+      {user?.image ? (
+        <Avatar
+          src={user.image}
+          alt={username}
+          sx={{ width: 40, height: 40 }}
+        />
+      ) : (
+        <AccountCircleIcon fontSize="large" />
+      )}
+    </Box>
+  </Toolbar>
+</AppBar>
+
 
         <Box sx={{ p: 3 }}>
           <Outlet />

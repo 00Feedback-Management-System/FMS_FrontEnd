@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Api from "../../services/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function FeedbackTypeForm() {
@@ -35,14 +37,12 @@ function FeedbackTypeForm() {
   // ✅ Fetch only if updating and NOT coming back from AddQuestionForm
   useEffect(() => {
     if (isUpdate && !location.state) {
-      Api.get(`FeedbackType/${id}`,
-        {
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}` 
-                        }
-        }
-      )
+      Api.get(`FeedbackType/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
         .then((res) => {
           const data = res.data;
           setFormData({
@@ -63,7 +63,7 @@ function FeedbackTypeForm() {
         })
         .catch((err) => {
           console.error("Error fetching feedback type:", err.response || err);
-          alert("Failed to fetch feedback type data. Check backend/API.");
+          toast.error("❌ Failed to fetch feedback type data. Check backend/API.");
         });
     }
   }, [id, isUpdate, location.state]);
@@ -92,35 +92,37 @@ function FeedbackTypeForm() {
 
     try {
       if (isUpdate) {
-        await Api.put(`FeedbackType/${id}`, payload,
-          {
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}` 
-                        }
-                }
-        );
-        alert("Feedback Type updated successfully!");
+        await Api.put(`FeedbackType/${id}`, payload, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        toast.success("✅ Feedback Type updated successfully!");
       } else {
-        await Api.post("FeedbackType/CreateFeedbackType", 
-          {
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}` 
-                        }
-                    }
-          ,payload);
-        alert("Feedback Type created successfully!");
+        await Api.post("FeedbackType/CreateFeedbackType", payload, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        toast.success("✅ Feedback Type created successfully!");
       }
-      navigate("/app/feedback-type-list");
+
+      setTimeout(() => {
+        navigate("/app/feedback-type-list");
+      }, 1200);
     } catch (error) {
       console.error("Error saving feedback type:", error.response || error);
-      alert("Failed to save feedback type.");
+      toast.error("❌ Failed to save feedback type.");
     }
   };
 
   return (
     <div className="container">
+      {/* Toast container */}
+      <ToastContainer position="top-right" autoClose={2500} hideProgressBar={false} />
+
       <h2 className="text-center mt-3 mb-3">
         {isUpdate ? "Update Feedback Type" : "Create Feedback Type"}
       </h2>
@@ -311,5 +313,3 @@ function FeedbackTypeForm() {
 }
 
 export default FeedbackTypeForm;
-
-

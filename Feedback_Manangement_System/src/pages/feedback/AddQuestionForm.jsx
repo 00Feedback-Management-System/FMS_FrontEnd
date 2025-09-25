@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function AddQuestionForm() {
@@ -17,7 +19,7 @@ function AddQuestionForm() {
 
   const handleAdd = () => {
     if (!text.trim() || !type) {
-      alert("Please enter question text and type");
+      toast.warning("⚠️ Please enter question text and type");
       return;
     }
 
@@ -29,14 +31,22 @@ function AddQuestionForm() {
 
     const updatedQuestions = [...questions, newQuestion];
 
+    // Show success toast
+    toast.success("✅ Question added successfully!");
+
     // Navigate back to FeedbackTypeForm with updated questions
-    navigate("/app/feedback-type-form" + (isUpdate ? `/${id}` : ""), {
-      state: { formData, questions: updatedQuestions, isUpdate, id },
-    });
+    setTimeout(() => {
+      navigate("/app/feedback-type-form" + (isUpdate ? `/${id}` : ""), {
+        state: { formData, questions: updatedQuestions, isUpdate, id },
+      });
+    }, 800); // Small delay so user sees toast
   };
 
   return (
     <div className="container mt-4 p-4 border rounded bg-light">
+      {/* Toast container */}
+      <ToastContainer position="top-right" autoClose={2500} hideProgressBar={false} />
+
       <h4 className="text-center mb-4">Add Question</h4>
 
       <div className="mb-3">
