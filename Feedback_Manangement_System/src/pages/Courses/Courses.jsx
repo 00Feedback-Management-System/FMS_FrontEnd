@@ -12,11 +12,11 @@ function AddCourse() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState([]);
-const token = localStorage.getItem("token");
-  
+  const token = localStorage.getItem("token");
+
   const fetchCourses = () => {
     axios
-      .get("https://localhost:7056/api/GetAllCourse",{
+      .get("https://localhost:7056/api/GetAllCourse", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -27,6 +27,7 @@ const token = localStorage.getItem("token");
       })
       .catch((err) => {
         console.error("Error fetching courses:", err);
+        toast.error("❌ Failed to load courses.");
       });
   };
 
@@ -34,19 +35,18 @@ const token = localStorage.getItem("token");
     fetchCourses();
   }, [token]);
 
- 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors([]);
     setLoading(true);
 
     const newCourse = {
-  course_name: courseName.trim(),
-  start_date: startDate,
-  end_date: endDate,
-  duration: parseInt(duration, 10),
-  course_type: courseType.trim(),
-};
+      course_name: courseName.trim(),
+      start_date: startDate,
+      end_date: endDate,
+      duration: parseInt(duration, 10),
+      course_type: courseType.trim(),
+    };
 
     try {
       await axios.post("https://localhost:7056/api/AddCourse", newCourse, {
@@ -56,20 +56,24 @@ const token = localStorage.getItem("token");
         },
       });
 
-     toast.success("✅ Course added successfully!");
+
+      toast.success("✅ Course added successfully!");
+      
       setCourseName("");
       setStartDate("");
       setEndDate("");
       setDuration("");
       setCourseType("");
-      fetchCourses(); 
+      fetchCourses();
     } catch (error) {
       console.error("Error adding course:", error.response?.data || error.message);
 
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
+        toast.error("⚠️ Validation errors occurred.");
       } else {
         setErrors(["Something went wrong while adding the course."]);
+        toast.error("❌ Failed to add course.");
       }
     } finally {
       setLoading(false);
@@ -78,10 +82,12 @@ const token = localStorage.getItem("token");
 
   return (
     <div className="container mt-4">
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
-      <h2 className="text-center">Add Course</h2>
 
-     
+      {/* Toast notifications */}
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
+
+    <h2 className="text-center">Add Course</h2>
+
       {errors.length > 0 && (
         <div className="alert alert-danger">
           <ul className="mb-0">
@@ -92,7 +98,6 @@ const token = localStorage.getItem("token");
         </div>
       )}
 
-    
       <form onSubmit={handleSubmit} className="card p-4 shadow-sm mb-4">
         <div className="mb-3">
           <label className="form-label">Course Name</label>
@@ -155,7 +160,6 @@ const token = localStorage.getItem("token");
         </button>
       </form>
 
-      
       <h3 className="text-center mb-3">Course List</h3>
       <table className="table table-bordered table-striped">
         <thead>

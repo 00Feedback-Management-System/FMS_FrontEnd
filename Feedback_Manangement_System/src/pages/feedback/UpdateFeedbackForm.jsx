@@ -4,6 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getCourses } from "../../services/course";
 import { getStaff } from "../../services/staff";
 import Api from "../../services/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function UpdateFeedbackForm() {
   const { feedbackId } = useParams();
@@ -40,30 +42,29 @@ function UpdateFeedbackForm() {
       setCourses(data || []);
     } catch (error) {
       console.error("Failed to load courses:", error);
+      toast.error("Failed to load courses");
     }
   };
 
-  // fetch modules for a specific course and set modules state
   const fetchModulesByCourse = async (courseId) => {
     try {
       if (!courseId) {
         setModules([]);
         return [];
       }
-      const response = await Api.get(`Modules/ByCourse/${courseId}`,
-        {
-          headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}` 
-                    }
-         }
-      );
+      const response = await Api.get(`Modules/ByCourse/${courseId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = response.data || [];
       setModules(data);
       return data;
     } catch (error) {
       console.error("Failed to load modules by course:", error);
       setModules([]);
+      toast.error("Failed to load modules");
       return [];
     }
   };
@@ -74,63 +75,56 @@ function UpdateFeedbackForm() {
       setFaculties(data || []);
     } catch (error) {
       console.error("Failed to load faculties:", error);
+      toast.error("Failed to load faculties");
     }
   };
 
   const fetchGroupsByCourse = async (courseId) => {
     try {
-      const response = await Api.get(`Groups/ByCourse/${courseId}`,
-        {
-          headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}` 
-                    }
-         }
-      );
+      const response = await Api.get(`Groups/ByCourse/${courseId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data || [];
     } catch (error) {
       console.error("Failed to load groups:", error);
+      toast.error("Failed to load groups");
       return [];
     }
   };
 
-  // Parse backend datetime string like "2025-09-13T00:00:00"
-  // and return YYYY-MM-DD WITHOUT applying timezone shifts (preserve date)
   const isoDateForInput = (dateString) => {
     if (!dateString) return "";
-    // match components to avoid timezone conversions
     const m = String(dateString).match(/^(\d{4})-(\d{2})-(\d{2})/);
     if (!m) return "";
-    const year = m[1], month = m[2], day = m[3];
-    return `${year}-${month}-${day}`; // format for <input type="date" />
+    const year = m[1],
+      month = m[2],
+      day = m[3];
+    return `${year}-${month}-${day}`;
   };
 
-  // --- Fetch existing feedback details and populate form
   const fetchFeedbackDetails = async () => {
     try {
-      const response = await Api.get(`Feedback/GetByFeedback/${feedbackId}`,
-        {
-          headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}` 
-                    }
-         }
-      );
+      const response = await Api.get(`Feedback/GetByFeedback/${feedbackId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const feedback = response.data;
 
       if (!feedback) return;
 
-      // detect group type
       const detectedGroupType =
         feedback.feedbackGroups && feedback.feedbackGroups.length > 1
           ? "multiple"
           : "single";
       setGroupType(detectedGroupType);
 
-      // fetch feedback types based on groupType
       await fetchFeedbackTypes(detectedGroupType);
 
-      // Ensure modules for the course are loaded BEFORE setting moduleId default
       let modulesForCourse = [];
       if (feedback.courseId) {
         modulesForCourse = await fetchModulesByCourse(feedback.courseId);
@@ -138,7 +132,6 @@ function UpdateFeedbackForm() {
         setModules([]);
       }
 
-      // determine staff id (top-level staffId or from first group)
       const staffFromTop = feedback.staffId ?? null;
       const staffFromGroups =
         feedback.feedbackGroups && feedback.feedbackGroups.length > 0
@@ -146,67 +139,57 @@ function UpdateFeedbackForm() {
           : null;
       const staffIdToUse = staffFromTop ?? staffFromGroups;
 
-      // set formData AFTER modules have been populated (so select options exist)
       setFormData({
         startDate: isoDateForInput(feedback.startDate),
         endDate: isoDateForInput(feedback.endDate),
-        feedbackTypeId:
-          feedback.feedbackTypeId != null ? String(feedback.feedbackTypeId) : "",
+        feedbackTypeId: feedback.feedbackTypeId != null ? String(feedback.feedbackTypeId) : "",
         courseId: feedback.courseId != null ? String(feedback.courseId) : "",
         moduleId: feedback.moduleId != null ? String(feedback.moduleId) : "",
         staffId: staffIdToUse != null ? String(staffIdToUse) : "",
         session: feedback.session ?? 0,
       });
 
-      // map feedbackGroups (if any) to include friendly group name and staff string
       if (feedback.feedbackGroups && feedback.feedbackGroups.length > 0) {
         const courseGroups = await fetchGroupsByCourse(feedback.courseId);
-
         const mapped = feedback.feedbackGroups.map((fg) => {
           const groupInfo =
-            fg.groupId != null
-              ? courseGroups.find((g) => g.group_id === fg.groupId)
-              : null;
+            fg.groupId != null ? courseGroups.find((g) => g.group_id === fg.groupId) : null;
           return {
             feedbackGroupId: fg.feedbackGroupId,
             groupId: fg.groupId ?? null,
-            groupName:
-              groupInfo?.group_name ?? (fg.groupId == null ? "-" : `Group ${fg.groupId}`),
+            groupName: groupInfo?.group_name ?? (fg.groupId == null ? "-" : `Group ${fg.groupId}`),
             staffId: fg.staffId != null ? String(fg.staffId) : "",
           };
         });
-
         setGroups(mapped);
       } else {
         setGroups([]);
       }
     } catch (error) {
       console.error("Failed to fetch feedback details:", error);
+      toast.error("Failed to fetch feedback details");
     }
   };
 
-  // fetch feedback types by groupType ("single" or "multiple")
   const fetchFeedbackTypes = async (type) => {
     try {
       if (!type) {
         setFeedbackTypes([]);
         return;
       }
-      const response = await Api.get(`FeedbackType/ByGroup/${type}`,
-        {
-          headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}` 
-                    }
-         }
-      );
+      const response = await Api.get(`FeedbackType/ByGroup/${type}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setFeedbackTypes(response.data || []);
     } catch (error) {
       console.error("Failed to load feedback types:", error);
+      toast.error("Failed to load feedback types");
     }
   };
 
-  // keep staffId valid when faculties arrive
   useEffect(() => {
     if (faculties.length > 0 && formData.staffId) {
       const exists = faculties.some((f) => String(f.staff_id) === formData.staffId);
@@ -230,18 +213,13 @@ function UpdateFeedbackForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate date order
     if (new Date(formData.startDate) > new Date(formData.endDate)) {
-      alert("Start Date cannot be greater than End Date!");
+      toast.error("Start Date cannot be greater than End Date!");
       return;
     }
 
-    const selectedFeedbackType = feedbackTypes.find(
-      (t) => String(t.feedbackTypeId) === formData.feedbackTypeId
-    );
-
     if (groupType === "multiple" && groups.some((g) => !g.staffId)) {
-      alert("Please select staff for all groups before submitting.");
+      toast.error("Please select staff for all groups before submitting.");
       return;
     }
 
@@ -265,27 +243,26 @@ function UpdateFeedbackForm() {
     };
 
     try {
-      await Api.put(`Feedback/Update/${feedbackId}`, payload,
-        {
-          headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}` 
-                    }
-         });
-      alert("Feedback updated successfully!");
+      await Api.put(`Feedback/Update/${feedbackId}`, payload, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      toast.success("Feedback updated successfully!");
       navigate("/app/schedule-feedback-list");
     } catch (error) {
       console.error("Error updating feedback:", error);
       const msg = error?.response?.data?.message || "Failed to update feedback.";
-      alert(msg);
+      toast.error(msg);
     }
   };
 
-  // Collect all staff already selected in groups (to hide in other selects)
   const selectedStaffIds = groups.map((g) => g.staffId).filter(Boolean);
 
   return (
     <div className="container mt-4">
+      <ToastContainer position="top-right" autoClose={3000} />
       <h4 className="text-center mb-4">UPDATE FEEDBACK</h4>
       <form className="p-4 rounded shadow" onSubmit={handleSubmit}>
         {/* Dates */}
@@ -346,7 +323,7 @@ function UpdateFeedbackForm() {
           </div>
         </div>
 
-        {/* Module + Staff (for single) */}
+        {/* Module + Staff (single) */}
         <div className="row mb-3">
           <div className="col-md-6">
             <label className="form-label">Module:</label>
@@ -402,7 +379,7 @@ function UpdateFeedbackForm() {
           </div>
         </div>
 
-        {/* Group List (for multiple) */}
+        {/* Group List (multiple) */}
         {groupType === "multiple" && (
           <div className="container mt-4">
             <h4>Group List</h4>
@@ -456,7 +433,11 @@ function UpdateFeedbackForm() {
           <button type="submit" className="btn btn-primary me-3">
             UPDATE
           </button>
-          <button type="button" onClick={() => navigate("/app/schedule-feedback-list")} className="btn btn-danger">
+          <button
+            type="button"
+            onClick={() => navigate("/app/schedule-feedback-list")}
+            className="btn btn-danger"
+          >
             CANCEL
           </button>
         </div>

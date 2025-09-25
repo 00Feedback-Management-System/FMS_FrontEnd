@@ -5,13 +5,14 @@ import { getCourses } from "../../services/course";
 import { getModules } from "../../services/Module";
 import { getStaff } from "../../services/staff";
 import Api from "../../services/api";
+import { toast } from "react-toastify";
 
 function ScheduleFeedbackForm() {
   const [courses, setCourses] = useState([]);
   const [modules, setModules] = useState([]);
   const [faculties, setFaculties] = useState([]);
   const [feedbackTypes, setFeedbackTypes] = useState([]);
-  const [groups, setGroups] = useState([]); // groups loaded for selected course
+  const [groups, setGroups] = useState([]);
 
   const token = localStorage.getItem("token");
 
@@ -28,7 +29,6 @@ function ScheduleFeedbackForm() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // load form data when editing
   useEffect(() => {
     if (location.state?.formData) {
       setFormData(location.state.formData);
@@ -37,7 +37,6 @@ function ScheduleFeedbackForm() {
 
   useEffect(() => {
     fetchCourses();
-
     fetchFaculties();
     fetchFeedbackTypes();
   }, []);
@@ -53,6 +52,7 @@ function ScheduleFeedbackForm() {
       setFeedbackTypes(response.data);
     } catch (error) {
       console.error("Failed to load feedback types:", error);
+      toast.error("Failed to load feedback types.");
     }
   };
 
@@ -62,6 +62,7 @@ function ScheduleFeedbackForm() {
       setCourses(data);
     } catch (error) {
       console.error("Failed to load courses:", error);
+      toast.error("Failed to load courses.");
     }
   };
 
@@ -80,6 +81,7 @@ function ScheduleFeedbackForm() {
       setModules(response.data);
     } catch (error) {
       console.error("Failed to load modules:", error);
+      toast.error("Failed to load modules.");
       setModules([]);
     }
   };
@@ -90,10 +92,10 @@ function ScheduleFeedbackForm() {
       setFaculties(data);
     } catch (error) {
       console.error("Failed to load faculties:", error);
+      toast.error("Failed to load faculties.");
     }
   };
 
-  // fetch groups by course
   const fetchGroupsByCourse = async (courseId) => {
     try {
       const response = await Api.get(`Groups/ByCourse/${courseId}`, {
@@ -102,15 +104,16 @@ function ScheduleFeedbackForm() {
           Authorization: `Bearer ${token}`,
         },
       });
-      // map groups from backend into local state with staffId empty
+
       const mappedGroups = response.data.map((g) => ({
         groupId: g.group_id,
         groupName: g.group_name,
-        staffId: "", // initially not selected
+        staffId: "",
       }));
       setGroups(mappedGroups);
     } catch (error) {
       console.error("Failed to load groups:", error);
+      toast.error("Failed to load groups.");
       setGroups([]);
     }
   };
@@ -130,7 +133,7 @@ function ScheduleFeedbackForm() {
     if (name === "courseId") {
       if (value) {
         fetchGroupsByCourse(value);
-        fetchModulesByCourse(value); // ✅ fetch modules for selected course
+        fetchModulesByCourse(value);
       } else {
         setGroups([]);
         setModules([]);
@@ -138,19 +141,11 @@ function ScheduleFeedbackForm() {
     }
   };
 
-  // handle staff selection for group row
-  const handleStaffSelect = (groupId, staffId) => {
-    setGroups((prev) =>
-      prev.map((g) => (g.groupId === groupId ? { ...g, staffId: staffId } : g))
-    );
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate date order
     if (new Date(formData.startDate) > new Date(formData.endDate)) {
-      alert("Start Date cannot be greater than End Date!");
+      toast.error("Start Date cannot be greater than End Date!");
       return;
     }
 
@@ -158,12 +153,11 @@ function ScheduleFeedbackForm() {
       (t) => t.feedback_type_id === Number(formData.feedbackTypeId)
     );
 
-    // validation: for multiple groups, all staff must be selected
     if (
       selectedFeedbackType?.group?.toLowerCase() === "multiple" &&
       groups.some((g) => !g.staffId)
     ) {
-      alert("Please select staff for all groups before submitting.");
+      toast.error("Please select staff for all groups before submitting.");
       return;
     }
 
@@ -195,11 +189,11 @@ function ScheduleFeedbackForm() {
           Authorization: `Bearer ${token}`,
         },
       });
-      alert("Feedback scheduled successfully!");
+      toast.success("Feedback scheduled successfully!");
       navigate("/app/schedule-feedback-list");
     } catch (error) {
       console.error("Error scheduling feedback:", error);
-      alert("Failed to schedule feedback.");
+      toast.error("Failed to schedule feedback. Please try again.");
     }
   };
 
@@ -347,7 +341,6 @@ function ScheduleFeedbackForm() {
               </thead>
               <tbody>
                 {groups.map((group, index) => {
-                  // Track already selected staff (except current row to allow reselect)
                   const selectedStaffIds = groups
                     .map((g, i) => (i !== index ? g.staffId : null))
                     .filter((id) => id !== null);
@@ -370,7 +363,7 @@ function ScheduleFeedbackForm() {
                           {faculties
                             .filter(
                               (fac) => !selectedStaffIds.includes(fac.staff_id)
-                            ) // ✅ Prevent duplicates
+                            )
                             .map((fac) => (
                               <option key={fac.staff_id} value={fac.staff_id}>
                                 {fac.first_name} {fac.last_name}
