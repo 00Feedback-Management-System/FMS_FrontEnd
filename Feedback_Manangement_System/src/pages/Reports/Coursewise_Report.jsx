@@ -15,7 +15,7 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { IconButton } from "@mui/material";
-
+import { Button } from "@mui/material";
 
 export default function CourseWiseReport() {
   const [rows, setRows] = useState([]);
@@ -241,10 +241,14 @@ const token = localStorage.getItem("token");
         Course Wise Report with Ratings
       </Typography>
 <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
-    <IconButton color="primary" onClick={downloadPDF}>
-    <PictureAsPdfIcon />
-   </IconButton>
-        </Box>
+  <Button
+    variant="contained"
+    color="primary"
+    onClick={downloadPDF}
+  >
+    Download PDF
+  </Button>
+</Box>
      
       <Grid container spacing={2} mb={2}>
         

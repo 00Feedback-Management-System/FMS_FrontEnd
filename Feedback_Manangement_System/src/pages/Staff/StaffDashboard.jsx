@@ -6,6 +6,7 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import { IconButton } from "@mui/material";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { Button } from "@mui/material";
 
 export default function StaffDashboard() {
   const [rows, setRows] = useState([]);
@@ -231,10 +232,14 @@ const handleDownloadFullPdf = () => {
 
 
    <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
-    <IconButton color="primary" onClick={handleDownloadFullPdf}>
-    <PictureAsPdfIcon />
-   </IconButton>
-        </Box>
+  <Button
+    variant="contained"
+    color="primary"
+    onClick={handleDownloadFullPdf}
+  >
+    Download PDF
+  </Button>
+</Box>
 
       <Box
         sx={{
