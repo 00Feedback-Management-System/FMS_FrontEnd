@@ -143,28 +143,33 @@ export default function FeedbackTypeList() {
       renderHeader: () => <strong>Behaviour</strong>,
     },
     {
-      field: "actions",
-      headerName: "Action",
-      flex: 1,
-      renderCell: (params) => (
-        <>
-          <Button
-            color="primary"
-            size="small"
-            onClick={() => handleEdit(params.row.feedback_type_id)}
-          >
-            <EditIcon />
-          </Button>
-          <Button
-            color="error"
-            size="small"
-            onClick={() => confirmDelete(params.row.feedback_type_id)}
-          >
-            <DeleteIcon />
-          </Button>
-        </>
-      ),
-    },
+  field: "actions",
+  headerName: "Action",
+  width: 150, // ✅ fixed width so buttons don’t cut off
+  sortable: false,
+  filterable: false,
+  disableColumnMenu: true,
+  renderCell: (params) => (
+    <div style={{ display: "flex", gap: "8px" }}>
+      <Button
+        color="primary"
+        size="small"
+        onClick={() => handleEdit(params.row.feedback_type_id)}
+      >
+        <EditIcon fontSize="small" />
+      </Button>
+      <Button
+        color="error"
+        size="small"
+        onClick={() => confirmDelete(params.row.feedback_type_id)}
+      >
+        <DeleteIcon fontSize="small" />
+      </Button>
+    </div>
+  ),
+}
+
+
   ];
 
   return (

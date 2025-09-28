@@ -209,45 +209,47 @@ export default function ScheduleFeedbackList() {
         </a>
       ),
     },
-    { field: "status", headerName: "Status", flex: 1 },
+   
     {
-      field: "actions",
-      headerName: "Action",
-      flex: 1,
-      renderCell: (params) => {
-        const idForRow = params.row.feedbackGroupId ?? params.row.Id;
-        return (
-          <>
-            <Button
-              color="primary"
-              size="small"
-              sx={{ mr: 1 }}
-              onClick={() => {
-                const start = new Date(params.row.startDate);
-                const now = new Date();
-                if (start <= now) {
-                  toast.error("You cannot update feedback after start date.");
-                  return;
-                }
-                navigate(`/app/update-feedback-form/${params.row.feedbackId}`, {
-                  state: { feedbackId: params.row.feedbackId },
-                });
-              }}
-            >
-              <EditIcon />
-            </Button>
+  field: "actions",
+  headerName: "Action",
+  width: 150, // ✅ fixed width
+  sortable: false,
+  filterable: false,
+  disableColumnMenu: true,
+  renderCell: (params) => {
+    const idForRow = params.row.feedbackGroupId ?? params.row.Id;
+    return (
+      <div style={{ display: "flex", gap: "8px" }}>
+        <Button
+          color="primary"
+          size="small"
+          onClick={() => {
+            const start = new Date(params.row.startDate);
+            const now = new Date();
+            if (start <= now) {
+              toast.error("You cannot update feedback after start date.");
+              return;
+            }
+            navigate(`/app/update-feedback-form/${params.row.feedbackId}`, {
+              state: { feedbackId: params.row.feedbackId },
+            });
+          }}
+        >
+          <EditIcon fontSize="small" />
+        </Button>
 
-            <Button
-              color="error"
-              size="small"
-              onClick={() => handleDelete(idForRow)}
-            >
-              <DeleteIcon />
-            </Button>
-          </>
-        );
-      },
-    },
+        <Button
+          color="error"
+          size="small"
+          onClick={() => handleDelete(idForRow)}
+        >
+          <DeleteIcon fontSize="small" />
+        </Button>
+      </div>
+    );
+  },
+},
   ];
 
   const onPaginationModelChange = (model) => {
