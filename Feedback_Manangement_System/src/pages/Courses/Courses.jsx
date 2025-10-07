@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+//import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Api from "../../services/api";
 
 function AddCourse() {
   const [courseName, setCourseName] = useState("");
@@ -13,18 +14,17 @@ function AddCourse() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const coursesPerPage = 5; // 👈 show 5 courses per page
+  const coursesPerPage = 5;
 
   const token = localStorage.getItem("token");
 
   const fetchCourses = () => {
-    axios
-      .get("https://localhost:7056/api/GetAllCourse", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    Api.get("GetAllCourse", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((res) => {
         setCourses(res.data);
       })
@@ -52,7 +52,7 @@ function AddCourse() {
     };
 
     try {
-      await axios.post("https://localhost:7056/api/AddCourse", newCourse, {
+      await Api.post("AddCourse", newCourse, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -68,7 +68,10 @@ function AddCourse() {
       setCourseType("");
       fetchCourses();
     } catch (error) {
-      console.error("Error adding course:", error.response?.data || error.message);
+      console.error(
+        "Error adding course:",
+        error.response?.data || error.message
+      );
 
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
@@ -92,7 +95,11 @@ function AddCourse() {
   return (
     <div className="container mt-4">
       {/* Toast notifications */}
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+      />
 
       <h2 className="text-center">Add Course</h2>
 
@@ -163,7 +170,11 @@ function AddCourse() {
           />
         </div>
 
-        <button type="submit" className="btn btn-primary w-100" disabled={loading}>
+        <button
+          type="submit"
+          className="btn btn-primary w-100"
+          disabled={loading}
+        >
           {loading ? "Adding..." : "Add Course"}
         </button>
       </form>
@@ -208,7 +219,10 @@ function AddCourse() {
         <nav>
           <ul className="pagination justify-content-center">
             <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>
+              <button
+                className="page-link"
+                onClick={() => setCurrentPage(currentPage - 1)}
+              >
                 Previous
               </button>
             </li>
@@ -218,14 +232,24 @@ function AddCourse() {
                 key={i}
                 className={`page-item ${currentPage === i + 1 ? "active" : ""}`}
               >
-                <button className="page-link" onClick={() => setCurrentPage(i + 1)}>
+                <button
+                  className="page-link"
+                  onClick={() => setCurrentPage(i + 1)}
+                >
                   {i + 1}
                 </button>
               </li>
             ))}
 
-            <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>
+            <li
+              className={`page-item ${
+                currentPage === totalPages ? "disabled" : ""
+              }`}
+            >
+              <button
+                className="page-link"
+                onClick={() => setCurrentPage(currentPage + 1)}
+              >
                 Next
               </button>
             </li>

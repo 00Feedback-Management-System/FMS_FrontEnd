@@ -1,7 +1,7 @@
 import DashboardLayout from "../../components/DashboardLayout";
 import StudentDashboardLayout from "../../components/StudentDashboardLayout";
-import './Home.css'
-import { Outlet } from 'react-router-dom'
+
+
 
 function Home() {
     const user = JSON.parse(localStorage.getItem("user"));

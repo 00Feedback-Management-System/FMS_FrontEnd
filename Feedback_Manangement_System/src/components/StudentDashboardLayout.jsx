@@ -12,10 +12,10 @@ import {
   Collapse,
   Avatar,
   IconButton,
-  useMediaQuery, 
-  useTheme, 
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu"; 
+import MenuIcon from "@mui/icons-material/Menu";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -27,12 +27,12 @@ import WavingHandIcon from "@mui/icons-material/WavingHand";
 
 function StudentDashboardLayout() {
   const navigate = useNavigate();
-  const theme = useTheme(); 
+  const theme = useTheme();
 
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
 
   const [openFeedback, setOpenFeedback] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false); 
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user"));
   const username = user ? `${user.first_name} ${user.last_name}` : "Student";
@@ -57,16 +57,17 @@ function StudentDashboardLayout() {
   };
 
   const drawer = (
-    <Box sx={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            height: '100%', 
-            bgcolor: 'background.paper', 
-        }}
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        bgcolor: "background.paper",
+      }}
     >
       <Toolbar
         sx={{
-          display: isDesktop ? "flex" : "none", 
+          display: isDesktop ? "flex" : "none",
           bgcolor: (theme) => theme.palette.success.main,
           color: (theme) => theme.palette.primary.contrastText,
           fontWeight: 600,
@@ -77,7 +78,7 @@ function StudentDashboardLayout() {
         Welcome
       </Toolbar>
 
-      <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
+      <Box sx={{ flexGrow: 1, overflowY: "auto" }}>
         <List>
           <ListItemButton onClick={() => setOpenFeedback(!openFeedback)}>
             <ListItemIcon>
@@ -90,7 +91,9 @@ function StudentDashboardLayout() {
             <List component="div" disablePadding>
               <ListItemButton
                 sx={{ pl: 4 }}
-                onClick={() => handleNavigation("/app/student-pending-feedbacklist")}
+                onClick={() =>
+                  handleNavigation("/app/student-pending-feedbacklist")
+                }
               >
                 <ListItemIcon>
                   <PendingActionsIcon />
@@ -99,7 +102,9 @@ function StudentDashboardLayout() {
               </ListItemButton>
               <ListItemButton
                 sx={{ pl: 4 }}
-                onClick={() => handleNavigation("/app/student-feedback-history")}
+                onClick={() =>
+                  handleNavigation("/app/student-feedback-history")
+                }
               >
                 <ListItemIcon>
                   <HistoryEduIcon />
@@ -110,12 +115,12 @@ function StudentDashboardLayout() {
           </Collapse>
         </List>
       </Box>
-      <Box sx={{ borderTop: 1, borderColor: 'divider', p: 1 }}>
+      <Box sx={{ borderTop: 1, borderColor: "divider", p: 1 }}>
         <ListItemButton onClick={handleLogout}>
           <ListItemIcon>
-            <LogoutIcon color="error"/>
+            <LogoutIcon color="error" />
           </ListItemIcon>
-          <ListItemText primary="Logout" sx={{ color: 'error.main' }} />
+          <ListItemText primary="Logout" sx={{ color: "error.main" }} />
         </ListItemButton>
       </Box>
     </Box>
@@ -124,10 +129,11 @@ function StudentDashboardLayout() {
   return (
     <Box sx={{ display: "flex" }}>
       <AppBar
-        position="fixed" 
+        position="fixed"
         sx={{
           bgcolor: "success.main",
-          zIndex: (theme) => (isDesktop ? theme.zIndex.drawer + 1 : theme.zIndex.appBar),
+          zIndex: (theme) =>
+            isDesktop ? theme.zIndex.drawer + 1 : theme.zIndex.appBar,
           width: isDesktop ? `calc(100% - ${drawerWidth}px)` : "100%",
           ml: isDesktop ? `${drawerWidth}px` : 0,
         }}
@@ -145,7 +151,13 @@ function StudentDashboardLayout() {
             </IconButton>
           )}
 
-          <Box sx={{ display: "flex", alignItems: "center",  marginLeft: isDesktop ? 'auto' : 0,  }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              marginLeft: isDesktop ? "auto" : 0,
+            }}
+          >
             <Typography variant="h6" sx={{ fontWeight: 600, mr: 2 }}>
               {username}
             </Typography>
@@ -173,7 +185,7 @@ function StudentDashboardLayout() {
           open={mobileOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
-            keepMounted: true, 
+            keepMounted: true,
           }}
           sx={{
             display: { xs: "block", md: "none" },
@@ -207,7 +219,7 @@ function StudentDashboardLayout() {
           bgcolor: "background.default",
           minHeight: "100vh",
           width: { md: `calc(100% - ${drawerWidth}px)` },
-          mt: 8, 
+          mt: 8,
         }}
       >
         <Box sx={{ p: 3 }}>
